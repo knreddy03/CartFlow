@@ -1,6 +1,7 @@
-from sqlalchemy import Column, Integer, String
+from sqlalchemy import Column, Integer, String, Date, DateTime, func
 from sqlalchemy.orm import relationship, Mapped, mapped_column
 from app.db.base import Base
+from datetime import date, datetime
 
 
 class User(Base):
@@ -11,6 +12,6 @@ class User(Base):
     last_name: Mapped[str] = mapped_column(String(50), nullable=False)
     mobile: Mapped[str] = mapped_column(String(20), unique=True, index=True, nullable=False)
     email: Mapped[str] = mapped_column(String(100), unique=True, index=True, nullable=False)
-    hashed_password: Mapped[str] = mapped_column(String(255), nullable=False)
-    date_of_birth: Mapped[str] = mapped_column(String(10), nullable=False)
-    created_at: Mapped[str] = mapped_column(String(30), nullable=False)
+    password: Mapped[str] = mapped_column(String(255), nullable=False)
+    date_of_birth: Mapped[date] = mapped_column(Date, nullable=False)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), nullable=False)
