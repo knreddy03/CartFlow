@@ -1,5 +1,6 @@
 from fastapi import FastAPI
 import uvicorn
+from app.api.v1.user import router as user_router
 
 app = FastAPI(
     title="Cart Flow",
@@ -7,11 +8,9 @@ app = FastAPI(
     version="1.0.0",
 )
 
+app.include_router(user_router)
+
 
 @app.get("/")
 def root():
     return {"message": "Welcome to Cart Flow API!"}
-
-
-if __name__ == "__main__":
-    uvicorn.run("main:app", host="127.0.0.1", port=8000, reload=True)
