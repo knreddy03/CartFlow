@@ -13,6 +13,12 @@ class UserRepository:
         self.db.refresh(user)
         return user
     
+    def update(self, user):
+        self.db.add(user)
+        self.db.commit()
+        self.db.refresh(user)
+        return user
+
     def get_by_id(self, user_id):
         return self.db.get(User, user_id)
 
@@ -20,5 +26,5 @@ class UserRepository:
         stmt = select(User).where(User.email == email)
         return self.db.scalar(stmt)
     
-    def delete(self, user):
-        return self.db.delete(user)
+    def delete(self, user_id):
+        return self.db.delete(user_id)

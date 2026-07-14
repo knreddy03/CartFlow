@@ -1,10 +1,10 @@
 from fastapi import HTTPException, status
 from jose import jwt, JWTError
-from core.config import settings
+from app.core.config import settings
 from datetime import datetime, timedelta, timezone
 
 
-def generate_token(data: dict):
+def generate_token(user_id: int):
     """
     Generate a JWT token with the given data.
 
@@ -14,11 +14,15 @@ def generate_token(data: dict):
     Returns:
         str: The generated JWT token.
     """
-    payload = data.copy()
     expire = datetime.now(timezone.utc) + timedelta(
         minutes=settings.access_token_expire_minutes
         )
-    payload.update({"exp": expire})
+    
+    payload = {
+        "sub": str(user_id),
+        "type": "access",
+        "exp": expire
+    }
 
     token = jwt.encode(
         payload, 
