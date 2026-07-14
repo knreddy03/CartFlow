@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, Date, DateTime, func
+from sqlalchemy import Integer, String, Date, DateTime
 from sqlalchemy.orm import relationship, Mapped, mapped_column
 from app.db.base import Base
 from datetime import date, datetime
@@ -14,4 +14,4 @@ class User(Base):
     email: Mapped[str] = mapped_column(String(100), unique=True, index=True, nullable=False)
     password: Mapped[str] = mapped_column(String(255), nullable=False)
     date_of_birth: Mapped[date] = mapped_column(Date, nullable=False)
-    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), nullable=False)
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow, nullable=False)

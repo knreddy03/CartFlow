@@ -25,3 +25,11 @@ class UserResponse(BaseModel):
 class UserLogin(BaseModel):
     email: EmailStr
     password: str
+
+
+class UserUpdate(BaseModel):
+    first_name: str = Field(..., min_length=1)
+    last_name: str = Field(..., min_length=1)
+    mobile: str = Field(..., min_length=10, max_length=15)
+    password: str
+    date_of_birth: str = Field(..., pattern=r"^\d{4}-\d{2}-\d{2}$")
