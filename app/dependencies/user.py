@@ -7,27 +7,20 @@ from app.services.user_service import UserService
 
 security = HTTPBearer()
 
-
-def get_current_user(
+def get_current_user_id(
         credentials: HTTPAuthorizationCredentials = Depends(security),
         db: Session = Depends(get_db)
     ):
-
+          
     token = credentials.credentials
-
     user_id = verify_token(token).get("sub")
-
     if not user_id:
-        raise HTTPException(
-            status_code=401,
-            detail="Invalid token"
-        )
-    
-    user = UserService(db).get_user_by_id(user_id)
-    if not user:
-            raise HTTPException(
-                status_code=401,
-                detail="Invalid email"
-                )
-    
-    return user
+        raise HTTPException(status_code=401, detail="Invalid token")
+        
+    return user_id
+
+
+def get_user_service(
+    db: Session = Depends(get_db),
+) -> UserService:
+    return UserService(db)
