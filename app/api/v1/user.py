@@ -1,67 +1,96 @@
-from fastapi import APIRouter, Depends, HTTPException
-from fastapi.security import OAuth2PasswordBearer
+from fastapi import APIRouter, Depends, status
+
+from app.dependencies.service import get_user_service
+from app.dependencies.user import get_current_user_id
+from app.schemas.user_schema import (
+    UserCreate,
+    UserLogin,
+    UserResponse,
+    UserUpdate,
+)
 from app.services.user_service import UserService
-from app.schemas.user_schema import UserCreate, UserResponse, UserLogin
-from app.db.database import get_db
-from sqlalchemy.orm import Session
-from app.db.session import engine
-from app.db.base import Base
-from app.core.dependencies import get_current_user
 
-
-Base.metadata.create_all(bind=engine)
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/login")
 
 router = APIRouter(
     prefix="/users",
-    tags=["users"]
+    tags=["Users"],
 )
 
 
-@router.post("/register", response_model=UserResponse, status_code=201)
-def register(data: UserCreate, db: Session = Depends(get_db)):
+@router.post(
+    "/register",
+    response_model=UserResponse,
+    status_code=status.HTTP_201_CREATED,
+)
+def register(
+    data: UserCreate,
+    user_service: UserService = Depends(get_user_service),
+):
     """
     Register a new user.
-
-    Args:
-        data (UserCreate): The user registration data.
-        db (Session): The database session.
-
-    Returns:
-        UserResponse: The registered user data.
     """
 
-    try:
-        user_service = UserService(db)
-        user = user_service.create_user(data)
-        return user
-    
-    except ValueError as e:
-        raise HTTPException(status_code=400, detail=str(e))
+    return user_service.create_user(data)
 
 
-@router.post("/login")
-def login(data: UserLogin, db: Session = Depends(get_db)):
+@router.post(
+    "/login",
+)
+def login(
+    data: UserLogin,
+    user_service: UserService = Depends(get_user_service),
+):
     """
-    Login an existing user.
-
-    Args:
-        data (UserLogin): The user login data.
-        db (Session): The database session.
-
-    Returns:
-        The JWT token.
+    Authenticate user and return access token.
     """
 
-    try:
-        user_service = UserService(db)
-        token = user_service.login_user(data)
-        return token
-    
-    except ValueError as e:
-        raise HTTPException(status_code=400, detail=str(e))
-    
+    return user_service.login_user(data)
 
-@router.get("/profile")
-def get_profile(current_user= Depends(get_current_user)):
-    return current_user
+
+@router.get(
+    "/me",
+    response_model=UserResponse,
+)
+def get_profile(
+    user_id: int = Depends(get_current_user_id),
+    user_service: UserService = Depends(get_user_service),
+):
+    """
+    Get currently authenticated user's profile.
+    """
+
+    return user_service.get_user_by_id(user_id)
+
+
+@router.patch(
+    "/me",
+    response_model=UserResponse,
+)
+def update_profile(
+    data: UserUpdate,
+    user_id: int = Depends(get_current_user_id),
+    user_service: UserService = Depends(get_user_service),
+):
+    """
+    Update currently authenticated user's profile.
+    """
+
+    return user_service.update_user(
+        data,
+        user_id,
+    )
+
+
+@router.delete(
+    "/me",
+    status_code=status.HTTP_204_NO_CONTENT,
+)
+def delete_profile(
+    user_id: int = Depends(get_current_user_id),
+    user_service: UserService = Depends(get_user_service),
+):
+    """
+    Delete currently authenticated user's profile.
+    """
+
+    user_service.delete_user(user_id)
