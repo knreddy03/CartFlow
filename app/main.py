@@ -1,5 +1,4 @@
 from fastapi import FastAPI
-import uvicorn
 from app.api.v1.user import router as user_router
 
 from app.core.exception_handlers import (
