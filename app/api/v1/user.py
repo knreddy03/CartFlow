@@ -1,5 +1,6 @@
 from fastapi import APIRouter, Depends, status
-
+from app.db.base import Base
+from app.db.session import engine
 from app.dependencies.service import get_user_service
 from app.dependencies.user import get_current_user_id
 from app.schemas.user_schema import (
@@ -10,7 +11,7 @@ from app.schemas.user_schema import (
 )
 from app.services.user_service import UserService
 
-
+Base.metadata.create_all(bind=engine)
 router = APIRouter(
     prefix="/users",
     tags=["Users"],

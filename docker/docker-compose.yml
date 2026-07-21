@@ -1,0 +1,67 @@
+version: "3.9"
+
+services:
+
+  app:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+
+    container_name: cartflow_app
+
+    restart: unless-stopped
+
+    env_file:
+      - ../.env
+
+    ports:
+      - "8000:8000"
+
+    volumes:
+      # Mount application code for hot reload during development
+      - ../app:/app/app
+
+    depends_on:
+      db:
+        condition: service_healthy
+
+    working_dir: /app
+
+    networks:
+      - cartflow_network
+
+  db:
+    image: postgres:15
+
+    container_name: cartflow_db
+
+    restart: unless-stopped
+
+    env_file:
+      - ../.env
+
+    ports:
+      # Allows connecting from local tools like DBeaver/pgAdmin
+      - "5432:5432"
+
+    volumes:
+      # Persistent database storage
+      - postgres_data:/var/lib/postgresql/data
+
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U postgres" ]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+    networks:
+      - cartflow_network
+
+volumes:
+
+  postgres_data:
+
+networks:
+
+  cartflow_network:
+    driver: bridge
