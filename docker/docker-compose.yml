@@ -1,13 +1,9 @@
-version: "3.9"
-
 services:
 
   app:
     build:
       context: ..
       dockerfile: docker/Dockerfile
-
-    container_name: cartflow_app
 
     restart: unless-stopped
 
@@ -25,15 +21,13 @@ services:
       db:
         condition: service_healthy
 
-    working_dir: /app
+    command: [ "uv", "run", "uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000", "--reload" ]
 
     networks:
       - cartflow_network
 
   db:
     image: postgres:15
-
-    container_name: cartflow_db
 
     restart: unless-stopped
 
@@ -58,10 +52,8 @@ services:
       - cartflow_network
 
 volumes:
-
   postgres_data:
 
 networks:
-
   cartflow_network:
     driver: bridge
