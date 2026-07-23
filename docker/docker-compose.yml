@@ -14,8 +14,14 @@ services:
       - "8000:8000"
 
     volumes:
-      # Mount application code for hot reload during development
+      # Application code
       - ../app:/app/app
+
+      # Alembic migrations
+      - ../alembic:/app/alembic
+
+      # Alembic configuration
+      - ../alembic.ini:/app/alembic.ini
 
     depends_on:
       db:

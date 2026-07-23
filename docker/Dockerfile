@@ -21,7 +21,7 @@ COPY pyproject.toml uv.lock ./
 RUN uv sync --frozen --no-dev
 
 # Copy the full project into /app
-COPY app ./app
+COPY . .
 
 # Expose app port
 EXPOSE 8000
