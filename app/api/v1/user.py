@@ -11,7 +11,7 @@ from app.schemas.user_schema import (
 )
 from app.services.user_service import UserService
 
-Base.metadata.create_all(bind=engine)
+
 router = APIRouter(
     prefix="/users",
     tags=["Users"],
