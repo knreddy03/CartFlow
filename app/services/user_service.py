@@ -2,6 +2,7 @@ from sqlalchemy.orm import Session
 from app.core.auth import generate_token
 from app.core.security import hash_password, verify_password
 from app.models.user import User
+from uuid import UUID
 from app.repositories.user_repository import UserRepository
 from app.schemas.user_schema import UserUpdate
 from app.exceptions.user_exceptions import (
@@ -61,7 +62,7 @@ class UserService:
         }
 
 
-    def get_user_by_id(self, user_id: int) -> User:
+    def get_user_by_id(self, user_id: UUID) -> User:
 
         user = self.user_repository.get_by_id(user_id)
 
@@ -71,7 +72,7 @@ class UserService:
         return user
 
     
-    def update_user(self, data: UserUpdate, user_id: int) -> User:
+    def update_user(self, data: UserUpdate, user_id: UUID) -> User:
 
         user = self.get_user_by_id(user_id)
 
@@ -94,7 +95,7 @@ class UserService:
             raise
     
 
-    def delete_user(self, user_id: int) -> None:
+    def delete_user(self, user_id: UUID) -> None:
 
         user = self.get_user_by_id(user_id)
 

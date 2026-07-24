@@ -1,6 +1,5 @@
 from fastapi import APIRouter, Depends, status
-from app.db.base import Base
-from app.db.session import engine
+from uuid import UUID
 from app.dependencies.service import get_user_service
 from app.dependencies.user import get_current_user_id
 from app.schemas.user_schema import (
@@ -36,6 +35,7 @@ def register(
 
 @router.post(
     "/login",
+    response_model=dict
 )
 def login(
     data: UserLogin,
@@ -53,7 +53,7 @@ def login(
     response_model=UserResponse,
 )
 def get_profile(
-    user_id: int = Depends(get_current_user_id),
+    user_id: UUID = Depends(get_current_user_id),
     user_service: UserService = Depends(get_user_service),
 ):
     """
@@ -69,7 +69,7 @@ def get_profile(
 )
 def update_profile(
     data: UserUpdate,
-    user_id: int = Depends(get_current_user_id),
+    user_id: UUID = Depends(get_current_user_id),
     user_service: UserService = Depends(get_user_service),
 ):
     """
@@ -87,7 +87,7 @@ def update_profile(
     status_code=status.HTTP_204_NO_CONTENT,
 )
 def delete_profile(
-    user_id: int = Depends(get_current_user_id),
+    user_id: UUID = Depends(get_current_user_id),
     user_service: UserService = Depends(get_user_service),
 ):
     """
