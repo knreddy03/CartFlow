@@ -1,5 +1,6 @@
 from pydantic import BaseModel, EmailStr, Field
 from datetime import date
+from uuid import UUID
 
 class UserCreate(BaseModel):
     first_name: str = Field(..., min_length=1)
@@ -11,6 +12,7 @@ class UserCreate(BaseModel):
 
 
 class UserResponse(BaseModel):
+    id: UUID
     first_name: str
     last_name: str
     mobile: str
