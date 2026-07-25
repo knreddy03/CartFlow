@@ -2,14 +2,15 @@ from fastapi import HTTPException, status
 from jose import jwt, JWTError
 from app.core.config import settings
 from datetime import datetime, timedelta, timezone
+from uuid import UUID
 
 
-def generate_token(user_id: int):
+def generate_token(user_id: UUID) -> str:
     """
-    Generate a JWT token with the given data.
+    Generate a JWT token with the given user ID.
 
     Args:
-        data (dict): The data to include in the token payload.
+        user_id (UUID): The user ID to include in the token payload.
 
     Returns:
         str: The generated JWT token.

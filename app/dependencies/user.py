@@ -18,9 +18,3 @@ def get_current_user_id(
         raise HTTPException(status_code=401, detail="Invalid token")
         
     return user_id
-
-
-def get_user_service(
-    db: Session = Depends(get_db),
-) -> UserService:
-    return UserService(db)
