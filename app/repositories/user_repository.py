@@ -20,4 +20,4 @@ class UserRepository:
         return self.db.scalar(stmt)
     
     def delete(self, user: User) -> None:
-        return self.db.delete(user)
+        self.db.delete(user)

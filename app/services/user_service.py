@@ -1,15 +1,10 @@
 from sqlalchemy.orm import Session
-from app.core.auth import generate_token
-from app.core.security import hash_password, verify_password
+from app.core.security import hash_password
 from app.models.user import User
 from uuid import UUID
 from app.repositories.user_repository import UserRepository
 from app.schemas.user_schema import UserUpdate
-from app.exceptions.user_exceptions import (
-    UserAlreadyExistsError,
-    UserNotFoundError,
-    InvalidCredentialsError,
-)
+from app.exceptions.user_exceptions import UserNotFoundError
 
 
 class UserService:
@@ -17,49 +12,6 @@ class UserService:
     def __init__(self, db: Session):
         self.db = db
         self.user_repository = UserRepository(db)
-
-
-    def create_user(self, data):
-
-        if self.user_repository.get_by_email(data.email):
-            raise UserAlreadyExistsError("User with this email already exists.")
-        
-        user = User(
-            first_name=data.first_name,
-            last_name=data.last_name,
-            mobile=data.mobile,
-            email=data.email,
-            password=hash_password(data.password),
-            date_of_birth=data.date_of_birth,
-        )
-
-        try:
-            self.user_repository.add(user)
-
-            self.db.commit()
-            self.db.refresh(user)
-
-            return user
-
-        except Exception:
-            self.db.rollback()
-            raise
-    
-
-    def login_user(self, data):
-        user = self.user_repository.get_by_email(data.email)
-        if not user:
-            raise InvalidCredentialsError("Invalid email or password.")
-        
-        if not verify_password(data.password, user.password):
-            raise InvalidCredentialsError("Invalid email or password.")
-        
-        access_token = generate_token(user.id)
-
-        return {
-            "access_token": access_token,
-            "token_type": "bearer"
-        }
 
 
     def get_user_by_id(self, user_id: UUID) -> User:
@@ -76,13 +28,16 @@ class UserService:
 
         user = self.get_user_by_id(user_id)
 
-        user.first_name = data.first_name
-        user.last_name = data.last_name
-        user.mobile = data.mobile
-        user.date_of_birth = data.date_of_birth
+        # Only include fields provided in the request
+        update_data = data.model_dump(exclude_unset=True)
 
-        if data.password:
-            user.password = hash_password(data.password)
+        # Hash password before saving
+        if "password" in update_data:
+            update_data["password"] = hash_password(update_data["password"])
+
+        # Update model attributes dynamically
+        for field, value in update_data.items():
+            setattr(user, field, value)
 
         try:
             self.db.commit()

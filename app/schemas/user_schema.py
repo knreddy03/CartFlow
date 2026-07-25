@@ -2,14 +2,6 @@ from pydantic import BaseModel, EmailStr, Field
 from datetime import date
 from uuid import UUID
 
-class UserCreate(BaseModel):
-    first_name: str = Field(..., min_length=1)
-    last_name: str = Field(..., min_length=1)
-    mobile: str = Field(..., min_length=10, max_length=15)
-    email: EmailStr
-    password: str
-    date_of_birth: date
-
 
 class UserResponse(BaseModel):
     id: UUID
@@ -23,14 +15,9 @@ class UserResponse(BaseModel):
         from_attributes = True
 
 
-class UserLogin(BaseModel):
-    email: EmailStr
-    password: str
-
-
 class UserUpdate(BaseModel):
-    first_name: str = Field(..., min_length=1)
-    last_name: str = Field(..., min_length=1)
-    mobile: str = Field(..., min_length=10, max_length=15)
-    password: str
-    date_of_birth: date
+    first_name: str | None = Field(default=None, min_length=1)
+    last_name: str | None = Field(default=None, min_length=1)
+    mobile: str | None = Field(default=None, min_length=10, max_length=15)
+    password: str | None = None
+    date_of_birth: date | None = None
