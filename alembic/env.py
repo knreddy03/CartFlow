@@ -6,7 +6,8 @@ from sqlalchemy import pool
 from alembic import context
 
 from app.db.base import Base
-from app.models import user
+from app.models.user import User
+from app.models.refresh_token import RefreshToken
 from app.core.config import settings
 
 # this is the Alembic Config object, which provides
