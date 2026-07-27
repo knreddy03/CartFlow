@@ -1,5 +1,5 @@
 from sqlalchemy.orm import Session
-from app.core.auth import generate_token
+from app.core.auth import create_access_token
 from app.core.security import hash_password, verify_password
 from app.models.user import User
 from app.repositories.user_repository import UserRepository
@@ -8,13 +8,14 @@ from app.exceptions.user_exceptions import (
     UserAlreadyExistsError,
     InvalidCredentialsError,
 )
-
+from app.services.refresh_token_service import RefreshTokenService
 
 class AuthService:
 
-    def __init__(self, db: Session):
+    def __init__(self, db: Session, refresh_token_service: RefreshTokenService):
         self.db = db
         self.user_repository = UserRepository(db)
+        self.refresh_token_service = refresh_token_service
 
 
     def register(self, data: RegisterRequest) -> User:
@@ -52,9 +53,11 @@ class AuthService:
         if not verify_password(data.password, user.password):
             raise InvalidCredentialsError("Invalid email or password.")
         
-        access_token = generate_token(user.id)
-
+        access_token = create_access_token(user.id)
+        refresh_token = self.refresh_token_service.create_token(user.id)
+        
         return {
             "access_token": access_token,
+            "refresh_token": refresh_token,
             "token_type": "bearer"
         }
