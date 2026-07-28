@@ -1,11 +1,13 @@
 from datetime import datetime, timezone
+import token
 from uuid import UUID
 
 from sqlalchemy.orm import Session
 
-from app.core.auth import create_refresh_token
+from app.core.auth import create_access_token, create_refresh_token
 from app.models.refresh_token import RefreshToken
 from app.repositories.refresh_token_repository import RefreshTokenRepository
+from app.exceptions.auth_exceptions import InvalidRefreshTokenError
 
 
 class RefreshTokenService:
@@ -28,20 +30,12 @@ class RefreshTokenService:
             expires_at=expires_at,
         )
 
-        try:
-            self.repository.add(refresh_token)
+        self.repository.add(refresh_token)
 
-            self.db.commit()
-            self.db.refresh(refresh_token)
-
-            return token
-
-        except Exception:
-            self.db.rollback()
-            raise
+        return token
 
 
-    def validate_token(self, token: str) -> RefreshToken | None:
+    def validate_token(self, token: str) -> RefreshToken:
         """
         Validate refresh token from database.
         """
@@ -49,32 +43,51 @@ class RefreshTokenService:
         refresh_token = self.repository.get_by_token(token)
 
         if refresh_token is None:
-            return None
+            raise InvalidRefreshTokenError(
+            "Invalid refresh token."
+        )
 
 
         if refresh_token.revoked:
-            return None
+            raise InvalidRefreshTokenError(
+            "Refresh token has been revoked."
+        )
 
 
         if refresh_token.expires_at < datetime.now(timezone.utc):
-            return None
+            raise InvalidRefreshTokenError(
+            "Refresh token has expired."
+        )
 
 
         return refresh_token
 
 
+    def rotate_token(self, token: str) -> tuple[str, str]:
+        """
+        Rotate refresh token and issue new token pair.
+        """
+
+        refresh_token = self.validate_token(token)
+
+        self.repository.revoke(refresh_token)
+
+        access_token = create_access_token(refresh_token.user_id)
+
+        new_refresh_token = self.create_token(refresh_token.user_id)
+
+        return (access_token, new_refresh_token)
+
+    
     def revoke_token(self, token: str) -> None:
         """
         Revoke a refresh token.
         """
 
-        refresh_token = self.repository.get_by_token(token)
+        refresh_token = self.validate_token(token)
 
-        if refresh_token:
-            self.repository.revoke(refresh_token)
-
-            self.db.commit()
-
+        self.repository.revoke(refresh_token)
+        
 
     def revoke_all_user_tokens(self, user_id: UUID) -> None:
         """
@@ -82,5 +95,3 @@ class RefreshTokenService:
         """
 
         self.repository.revoke_all_by_user(user_id)
-
-        self.db.commit()

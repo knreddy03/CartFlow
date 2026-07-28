@@ -1,7 +1,12 @@
 from fastapi import APIRouter, Depends, status
 from app.dependencies.service import get_auth_service
 from app.schemas.user_schema import UserResponse
-from app.schemas.auth_schema import RegisterRequest, LoginRequest, TokenResponse
+from app.schemas.auth_schema import (
+    RegisterRequest, 
+    LoginRequest,
+    RefreshTokenRequest, 
+    TokenResponse
+)
 from app.services.auth_service import AuthService
 
 
@@ -40,3 +45,34 @@ def login(
     """
 
     return auth_service.login(data)
+
+
+@router.post(
+    "/refresh",
+    response_model=TokenResponse,
+)
+def refresh(
+    data: RefreshTokenRequest,
+    auth_service: AuthService = Depends(get_auth_service),
+):
+    """
+    Issue a new access token and rotate the refresh token.
+    """
+
+    return auth_service.refresh(data)
+
+
+
+@router.post(
+    "/logout",
+    status_code=status.HTTP_204_NO_CONTENT,
+)
+def logout(
+    data: RefreshTokenRequest,
+    auth_service: AuthService = Depends(get_auth_service),
+):
+    """
+    Logout user.
+    """
+
+    auth_service.logout(data)

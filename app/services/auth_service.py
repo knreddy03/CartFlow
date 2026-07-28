@@ -3,7 +3,7 @@ from app.core.auth import create_access_token
 from app.core.security import hash_password, verify_password
 from app.models.user import User
 from app.repositories.user_repository import UserRepository
-from app.schemas.auth_schema import RegisterRequest, LoginRequest
+from app.schemas.auth_schema import RefreshTokenRequest, RegisterRequest, LoginRequest, TokenResponse
 from app.exceptions.user_exceptions import (
     UserAlreadyExistsError,
     InvalidCredentialsError,
@@ -55,9 +55,50 @@ class AuthService:
         
         access_token = create_access_token(user.id)
         refresh_token = self.refresh_token_service.create_token(user.id)
+
+        try:
+            self.db.commit()
+            self.db.refresh(user)
+                
+        except Exception:
+            self.db.rollback()
+            raise
         
         return {
             "access_token": access_token,
             "refresh_token": refresh_token,
             "token_type": "bearer"
         }
+
+
+    def refresh(self,data: RefreshTokenRequest) -> TokenResponse:
+        try:
+            access_token, refresh_token = (
+                self.refresh_token_service.rotate_token(
+                    data.refresh_token
+                )
+            )
+            
+            self.db.commit()
+                
+        except Exception:
+            self.db.rollback()
+            raise
+
+        return {
+            "access_token": access_token,
+            "refresh_token": refresh_token,
+            "token_type": "bearer",
+        }
+
+
+    def logout(self, data: RefreshTokenRequest) -> None:
+        self.refresh_token_service.revoke_token(
+        data.refresh_token
+        )
+        try:
+            self.db.commit()
+                
+        except Exception:
+            self.db.rollback()
+            raise
