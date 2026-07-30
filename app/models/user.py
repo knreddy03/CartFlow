@@ -1,4 +1,4 @@
-from sqlalchemy import String, Date, DateTime
+from sqlalchemy import String, Date, Boolean
 from sqlalchemy.orm import relationship, Mapped, mapped_column
 from app.db.base_model import BaseModel
 from datetime import date
@@ -13,6 +13,7 @@ class User(BaseModel):
     email: Mapped[str] = mapped_column(String(100), unique=True, index=True, nullable=False)
     password: Mapped[str] = mapped_column(String(255), nullable=False)
     date_of_birth: Mapped[date] = mapped_column(Date, nullable=False)
+    is_verified: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
 
 
     refresh_tokens = relationship("RefreshToken", back_populates="user", cascade="all, delete-orphan")

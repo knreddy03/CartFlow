@@ -1,6 +1,7 @@
 from fastapi import APIRouter, Depends, status
 from app.dependencies.service import get_auth_service
 from app.schemas.user_schema import UserResponse
+from app.schemas.email_verification_schema import VerifyEmailRequest
 from app.schemas.auth_schema import (
     RegisterRequest, 
     LoginRequest,
@@ -61,6 +62,28 @@ def refresh(
 
     return auth_service.refresh(data)
 
+
+@router.post(
+    "/verify-email",
+    status_code=status.HTTP_200_OK,
+)
+def verify_email(
+    data: VerifyEmailRequest,
+    auth_service: AuthService = Depends(
+        get_auth_service
+    ),
+):
+    """
+    Verify user's email address.
+    """
+
+    auth_service.verify_email(
+        data.token
+    )
+
+    return {
+        "message": "Email verified successfully."
+    }
 
 
 @router.post(
