@@ -10,6 +10,7 @@ class Settings(BaseSettings):
     algorithm: str
     access_token_expire_minutes: int
     refresh_token_expire_days: int
+    email_verification_token_expire_minutes: int
 
     model_config = SettingsConfigDict(
         env_file=".env",

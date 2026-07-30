@@ -9,13 +9,16 @@ from app.exceptions.user_exceptions import (
     InvalidCredentialsError,
 )
 from app.services.refresh_token_service import RefreshTokenService
+from app.services.email_verification_service import EmailVerificationService
+
 
 class AuthService:
 
-    def __init__(self, db: Session, refresh_token_service: RefreshTokenService):
+    def __init__(self, db: Session, refresh_token_service: RefreshTokenService, email_verification_service: EmailVerificationService):
         self.db = db
         self.user_repository = UserRepository(db)
         self.refresh_token_service = refresh_token_service
+        self.email_verification_service = email_verification_service
 
 
     def register(self, data: RegisterRequest) -> User:
@@ -34,6 +37,10 @@ class AuthService:
 
         try:
             self.user_repository.add(user)
+
+            self.db.flush()
+
+            self.email_verification_service.create_token(user.id)
 
             self.db.commit()
             self.db.refresh(user)
@@ -99,6 +106,17 @@ class AuthService:
         try:
             self.db.commit()
                 
+        except Exception:
+            self.db.rollback()
+            raise
+
+
+    def verify_email(self,token: str,) -> None:
+        self.email_verification_service.verify_email(token)
+
+        try:
+            self.db.commit()
+
         except Exception:
             self.db.rollback()
             raise

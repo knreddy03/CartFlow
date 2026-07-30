@@ -69,3 +69,52 @@ def verify_token(token:str):
             detail="Could not validate credentials",
             headers={"WWW-Authenticate": "Bearer"},
         )
+
+
+def create_email_verification_token(user_id: UUID) -> tuple[str, datetime]:
+    """
+    Generate short-lived email verification token.
+    """
+    expires_at = datetime.now(timezone.utc) + timedelta(
+        minutes=settings.email_verification_token_expire_minutes
+        )
+    
+    payload = {
+        "sub": str(user_id),
+        "type": "email_verification",
+        "exp": expires_at
+    }
+
+    token = jwt.encode(
+        payload, 
+        settings.secret_key, 
+        algorithm=settings.algorithm
+        )
+    
+    return token, expires_at
+
+
+def verify_email_verification_token(
+    token: str
+) -> UUID:
+
+    try:
+        payload = jwt.decode(
+            token,
+            settings.secret_key,
+            algorithms=[settings.algorithm]
+        )
+
+        if payload.get("type") != "email_verification":
+            raise HTTPException(
+                status_code=401,
+                detail="Invalid token type"
+            )
+
+        return UUID(payload["sub"])
+
+    except JWTError:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid verification token",
+        )
