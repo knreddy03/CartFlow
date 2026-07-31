@@ -1,30 +1,29 @@
+import { useQuery } from "@tanstack/react-query";
+
 import { api } from "./api/axios";
 
-
 function App() {
+  const { data, isLoading, error } = useQuery({
+    queryKey: ["health"],
 
+    queryFn: async () => {
+      const response = await api.get("/");
 
-  const testBackend = async()=>{
-    const response = await api.get("/");
-    console.log(response.data);
-  };
+      return response.data;
+    },
+  });
 
+  if (isLoading) {
+    return <div>Loading...</div>;
+  }
+
+  if (error) {
+    return <div>Error</div>;
+  }
 
   return (
-    <div className="flex min-h-screen flex-col items-center justify-center gap-4">
-
-      <h1 className="text-4xl font-bold">
-        CartFlow
-      </h1>
-
-
-      <button
-        onClick={testBackend}
-        className="rounded bg-black px-4 py-2 text-white"
-      >
-        Test Backend
-      </button>
-
+    <div className="flex min-h-screen items-center justify-center">
+      <h1 className="text-4xl font-bold">{JSON.stringify(data)}</h1>
     </div>
   );
 }
