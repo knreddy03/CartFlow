@@ -1,31 +1,69 @@
+import { useForm } from "react-hook-form";
+
+import { zodResolver } from "@hookform/resolvers/zod";
+
+import { loginSchema } from "../auth.types";
+
+import type { LoginFormData } from "../auth.types";
+
+import { useMutation } from "@tanstack/react-query";
+
+import { loginUser } from "../../../api/auth.api";
+
+import axios from "axios";
+
 export default function LoginForm() {
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<LoginFormData>({
+    resolver: zodResolver(loginSchema),
+  });
+
+  const mutation = useMutation({
+    mutationFn: loginUser,
+
+    onSuccess(data) {
+      console.log("Login successful", data);
+    },
+
+    onError(error) {
+      if (axios.isAxiosError(error)) {
+        console.error(error.response?.data);
+      }
+    },
+  });
+
+  const onSubmit = (data: LoginFormData) => {
+    mutation.mutate(data);
+  };
+
   return (
-    <form className="space-y-5">
-      <div>
-        <label className="mb-2 block text-sm font-medium">Email</label>
+    <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
+      <input
+        {...register("email")}
+        placeholder="Email"
+        className="w-full rounded-lg border px-4 py-2"
+      />
 
-        <input
-          type="email"
-          placeholder="Enter your email"
-          className="w-full rounded-lg border border-gray-300 px-4 py-2 focus:border-blue-500 focus:outline-none"
-        />
-      </div>
+      <p className="text-sm text-red-500">{errors.email?.message}</p>
 
-      <div>
-        <label className="mb-2 block text-sm font-medium">Password</label>
+      <input
+        type="password"
+        {...register("password")}
+        placeholder="Password"
+        className="w-full rounded-lg border px-4 py-2"
+      />
 
-        <input
-          type="password"
-          placeholder="Enter your password"
-          className="w-full rounded-lg border border-gray-300 px-4 py-2 focus:border-blue-500 focus:outline-none"
-        />
-      </div>
+      <p className="text-sm text-red-500">{errors.password?.message}</p>
 
       <button
         type="submit"
-        className="w-full rounded-lg bg-blue-600 py-2 font-semibold text-white transition hover:bg-blue-700"
+        disabled={mutation.isPending}
+        className="w-full rounded-lg bg-blue-600 py-2 text-white"
       >
-        Login
+        {mutation.isPending ? "Signing in..." : "Login"}
       </button>
     </form>
   );

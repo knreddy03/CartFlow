@@ -32,3 +32,26 @@ export const registerUser = async (
 
   return response.data;
 };
+
+
+export interface LoginPayload {
+  email: string;
+  password: string;
+}
+
+export interface LoginResponse {
+  access_token: string;
+  refresh_token: string;
+  token_type: "bearer";
+}
+
+export const loginUser = async (
+  payload: LoginPayload
+) => {
+  const response = await api.post<LoginResponse>(
+    "/auth/login",
+    payload
+  );
+
+  return response.data;
+};
