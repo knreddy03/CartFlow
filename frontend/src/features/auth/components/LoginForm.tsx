@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -11,12 +12,12 @@ import { loginSchema } from "../auth.types";
 import type { LoginFormData } from "../auth.types";
 
 import { useAuth } from "../hooks/useAuth";
-import { useAuthStore } from "../auth.store";
 
 import { loginUser } from "../../../api/auth.api";
 
 export default function LoginForm() {
   const { login } = useAuth();
+  const navigate = useNavigate();
 
   const [apiError, setApiError] = useState("");
 
@@ -34,7 +35,7 @@ export default function LoginForm() {
     onSuccess(data) {
       login(data.access_token, data.refresh_token, data.token_type);
 
-      console.log("STORE AFTER LOGIN:", useAuthStore.getState());
+      navigate("/profile");
     },
 
     onError(error) {

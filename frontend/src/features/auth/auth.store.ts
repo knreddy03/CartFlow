@@ -27,8 +27,6 @@ export const useAuthStore = create<AuthState>()(
       isAuthenticated: false,
 
       login: (access_token, refresh_token, token_type) => {
-        console.log("ZUSTAND LOGIN CALLED");
-
         set({
           access_token,
 

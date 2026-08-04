@@ -1,25 +1,14 @@
-import {
-  useAuthStore,
-} from "../auth.store";
+import { useAuthStore } from "../auth.store";
 
-
-export function useAuth(){
-
-  const {
-    access_token,
-    refresh_token,
-    isAuthenticated,
-    login,
-    logout,
-  } = useAuthStore();
-
+export const useAuth = () => {
+  const { isAuthenticated, access_token, refresh_token, login, logout } =
+    useAuthStore();
 
   return {
+    isAuthenticated,
     access_token,
     refresh_token,
-    isAuthenticated,
     login,
     logout,
   };
-
-}
+};

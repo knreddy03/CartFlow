@@ -1,6 +1,5 @@
 import { api } from "./axios";
 
-
 export interface RegisterPayload {
   first_name: string;
   last_name: string;
@@ -9,7 +8,6 @@ export interface RegisterPayload {
   email: string;
   password: string;
 }
-
 
 export interface RegisterResponse {
   id: number;
@@ -20,19 +18,11 @@ export interface RegisterResponse {
   date_of_birth: string;
 }
 
-
-export const registerUser = async (
-  payload: RegisterPayload
-) => {
-
-  const response = await api.post<RegisterResponse>(
-    "/auth/register",
-    payload
-  );
+export const registerUser = async (payload: RegisterPayload) => {
+  const response = await api.post<RegisterResponse>("/auth/register", payload);
 
   return response.data;
 };
-
 
 export interface LoginPayload {
   email: string;
@@ -45,13 +35,22 @@ export interface LoginResponse {
   token_type: "bearer";
 }
 
-export const loginUser = async (
-  payload: LoginPayload
-) => {
-  const response = await api.post<LoginResponse>(
-    "/auth/login",
-    payload
-  );
+export const loginUser = async (payload: LoginPayload) => {
+  const response = await api.post<LoginResponse>("/auth/login", payload);
 
+  return response.data;
+};
+
+export interface UserResponse {
+  id: number;
+  first_name: string;
+  last_name: string;
+  email: string;
+  mobile: string;
+  date_of_birth: string;
+}
+
+export const getCurrentUser = async () => {
+  const response = await api.get<UserResponse>("/users/me");
   return response.data;
 };

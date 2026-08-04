@@ -1,29 +1,31 @@
 import { useQuery } from "@tanstack/react-query";
 
-import { api } from "./api/axios";
+import { getCurrentUser } from "./api/user.api";
+
+import LogoutButton from "./features/auth/components/LogoutButton";
 
 function App() {
   const { data, isLoading, error } = useQuery({
-    queryKey: ["health"],
+    queryKey: ["me"],
 
-    queryFn: async () => {
-      const response = await api.get("/");
-
-      return response.data;
-    },
+    queryFn: getCurrentUser,
   });
 
   if (isLoading) {
-    return <div>Loading...</div>;
+    return <h1>Loading...</h1>;
   }
 
   if (error) {
-    return <div>Error</div>;
+    return <h1>Failed to load user</h1>;
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center">
-      <h1 className="text-4xl font-bold">{JSON.stringify(data)}</h1>
+    <div className="p-8">
+      <h1 className="text-3xl font-bold">CartFlow</h1>
+
+      <pre className="my-5">{JSON.stringify(data, null, 2)}</pre>
+
+      <LogoutButton />
     </div>
   );
 }
