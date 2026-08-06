@@ -8,7 +8,7 @@ import type { RegisterFormData } from "../auth.types";
 
 import { useMutation } from "@tanstack/react-query";
 
-import { registerUser } from "../../../api/auth.api";
+import { registerUser } from "../api/auth.api";
 
 export default function RegisterForm() {
   const {

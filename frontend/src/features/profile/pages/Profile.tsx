@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 
-import { getProfile } from "../profile.api";
+import { getProfile } from "../api/profile.api";
 
 import LogoutButton from "../../auth/components/LogoutButton";
 

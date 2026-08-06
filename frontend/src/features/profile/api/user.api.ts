@@ -1,4 +1,4 @@
-import { api } from "./axios";
+import { api } from "../../../api/axios";
 
 export const getCurrentUser = async () => {
   console.log("Calling GET /users/me");

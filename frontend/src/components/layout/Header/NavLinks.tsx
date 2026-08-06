@@ -1,5 +1,9 @@
 import { NavLink } from "react-router-dom";
 
+interface NavLinksProps {
+  transparent?: boolean;
+}
+
 const links = [
   { name: "Home", path: "/" },
   { name: "Men", path: "/men" },
@@ -8,15 +12,17 @@ const links = [
   { name: "Sale", path: "/sale" },
 ];
 
-function NavLinks() {
+function NavLinks({ transparent = false }: NavLinksProps) {
   return (
-    <nav className="hidden gap-8 md:flex">
+    <nav className="hidden gap-8 lg:flex">
       {links.map((link) => (
         <NavLink
           key={link.path}
           to={link.path}
-          className={({ isActive }) =>
-            isActive ? "font-semibold" : "text-gray-600 hover:text-black"
+          className={() =>
+            transparent
+              ? "font-medium text-white hover:text-gray-300"
+              : "font-medium text-gray-700 hover:text-black"
           }
         >
           {link.name}

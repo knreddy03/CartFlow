@@ -3,18 +3,16 @@ import { Outlet } from "react-router-dom";
 import Header from "../components/layout/Header/Header";
 import Footer from "../components/layout/Footer/Footer";
 
-function MainLayout() {
+function HomeLayout() {
   return (
     <>
-      <Header variant="solid" />
+      <Header variant="transparent" />
 
-      <main className="min-h-screen">
-        <Outlet />
-      </main>
+      <Outlet />
 
       <Footer />
     </>
   );
 }
 
-export default MainLayout;
+export default HomeLayout;
