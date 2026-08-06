@@ -41,7 +41,9 @@ function ProfileMenu({ transparent = false }: ProfileMenuProps) {
         onClick={() => setOpen(!open)}
         className="rounded-full p-2 hover:bg-gray-100"
       >
-        <User className={'h-5 w-5 ${transparent ? "text-white" : ""}'} />
+        <User
+          className={`h-5 w-5 ${transparent ? "text-white" : "text-gray-700"}`}
+        />
       </button>
 
       {open && (
