@@ -2,9 +2,13 @@ import { useEffect, useRef, useState } from "react";
 import { User } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 
-import { useAuth } from "../../features/auth/hooks/useAuth";
+import { useAuth } from "../../../features/auth/hooks/useAuth";
 
-function ProfileMenu() {
+interface ProfileMenuProps {
+  transparent?: boolean;
+}
+
+function ProfileMenu({ transparent = false }: ProfileMenuProps) {
   const [open, setOpen] = useState(false);
 
   const menuRef = useRef<HTMLDivElement>(null);
@@ -37,7 +41,7 @@ function ProfileMenu() {
         onClick={() => setOpen(!open)}
         className="rounded-full p-2 hover:bg-gray-100"
       >
-        <User className="h-5 w-5" />
+        <User className={'h-5 w-5 ${transparent ? "text-white" : ""}'} />
       </button>
 
       {open && (

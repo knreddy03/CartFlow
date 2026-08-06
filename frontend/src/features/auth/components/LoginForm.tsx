@@ -13,7 +13,7 @@ import type { LoginFormData } from "../auth.types";
 
 import { useAuth } from "../hooks/useAuth";
 
-import { loginUser } from "../../../api/auth.api";
+import { loginUser } from "../api/auth.api";
 
 export default function LoginForm() {
   const { login } = useAuth();
