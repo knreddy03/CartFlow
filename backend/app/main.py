@@ -9,12 +9,19 @@ from app.core.exception_handlers import (
     user_already_exists_handler,
     user_not_found_handler,
     invalid_credentials_handler,
+    category_not_found_handler,
+    category_already_exists_handler,
 )
 
 from app.exceptions.user_exceptions import (
     UserAlreadyExistsError,
     UserNotFoundError,
     InvalidCredentialsError,
+)
+
+from app.exceptions.category_exceptions import (
+    CategoryNotFoundError,
+    CategoryAlreadyExistsError,
 )
 
 
@@ -48,6 +55,17 @@ app.add_exception_handler(
     InvalidCredentialsError,
     invalid_credentials_handler,
 )
+
+app.add_exception_handler(
+    CategoryNotFoundError,
+    category_not_found_handler,
+)
+
+app.add_exception_handler(
+    CategoryAlreadyExistsError,
+    category_already_exists_handler,
+)
+
 
 app.include_router(auth_router)
 app.include_router(user_router)

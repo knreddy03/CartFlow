@@ -7,6 +7,10 @@ from app.exceptions.user_exceptions import (
     InvalidCredentialsError,
 )
 
+from app.exceptions.category_exceptions import (
+    CategoryNotFoundError,
+    CategoryAlreadyExistsError,
+)
 
 def user_already_exists_handler(
     request: Request,
@@ -38,6 +42,30 @@ def invalid_credentials_handler(
 ):
     return JSONResponse(
         status_code=401,
+        content={
+            "detail": str(exc)
+        },
+    )
+
+
+def category_not_found_handler(
+    request: Request,
+    exc: CategoryNotFoundError,
+):
+    return JSONResponse(
+        status_code=404,
+        content={
+            "detail": str(exc)
+        },
+    )
+
+
+def category_already_exists_handler(
+    request: Request,
+    exc: CategoryAlreadyExistsError,
+):
+    return JSONResponse(
+        status_code=409,
         content={
             "detail": str(exc)
         },
