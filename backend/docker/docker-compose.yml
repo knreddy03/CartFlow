@@ -17,6 +17,9 @@ services:
       # Application code
       - ../app:/app/app
 
+      # Tests
+      - ../tests:/app/tests
+
       # Alembic migrations
       - ../alembic:/app/alembic
 

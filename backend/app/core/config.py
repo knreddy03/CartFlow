@@ -6,6 +6,7 @@ class Settings(BaseSettings):
     debug: bool = False
 
     database_url: str
+    test_database_url: str
     frontend_url: str
     secret_key: str
     algorithm: str
