@@ -4,6 +4,7 @@ from app.core.config import settings
 from app.api.v1.user import router as user_router
 from app.api.v1.auth import router as auth_router
 from app.api.v1.category import router as category_router
+from app.api.v1.product import router as product_router
 
 from app.core.exception_handlers import (
     user_already_exists_handler,
@@ -11,6 +12,8 @@ from app.core.exception_handlers import (
     invalid_credentials_handler,
     category_not_found_handler,
     category_already_exists_handler,
+    product_not_found_handler,
+    product_already_exists_handler,
 )
 
 from app.exceptions.user_exceptions import (
@@ -22,6 +25,11 @@ from app.exceptions.user_exceptions import (
 from app.exceptions.category_exceptions import (
     CategoryNotFoundError,
     CategoryAlreadyExistsError,
+)
+
+from app.exceptions.product_exceptions import (
+    ProductNotFoundError,
+    ProductAlreadyExistsError,
 )
 
 
@@ -66,10 +74,21 @@ app.add_exception_handler(
     category_already_exists_handler,
 )
 
+app.add_exception_handler(
+    ProductNotFoundError,
+    product_not_found_handler,
+)
+
+app.add_exception_handler(
+    ProductAlreadyExistsError,
+    product_already_exists_handler,
+)
+
 
 app.include_router(auth_router)
 app.include_router(user_router)
 app.include_router(category_router)
+app.include_router(product_router)
 
 
 @app.get("/")

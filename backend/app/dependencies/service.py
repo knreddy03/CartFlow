@@ -8,6 +8,7 @@ from app.services.auth_service import AuthService
 from app.services.refresh_token_service import RefreshTokenService
 from app.services.email_verification_service import EmailVerificationService
 from app.services.category_service import CategoryService
+from app.services.product_service import ProductService
 
 
 def get_user_service(
@@ -41,3 +42,9 @@ def get_category_service(
     db: Session = Depends(get_db),
 ) -> CategoryService:
     return CategoryService(db)
+
+
+def get_product_service(
+    db: Session = Depends(get_db),
+) -> ProductService:
+    return ProductService(db)
