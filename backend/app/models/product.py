@@ -26,3 +26,5 @@ class Product(BaseModel):
     is_active: Mapped[bool] = mapped_column(Boolean, default=True, nullable=False, )
 
     category = relationship("Category", back_populates="products")
+    cart_items = relationship("CartItem",back_populates="product",)
+    
