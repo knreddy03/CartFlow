@@ -17,6 +17,13 @@ from app.exceptions.product_exceptions import (
     ProductAlreadyExistsError,
 )
 
+from app.exceptions.cart_exceptions import (
+    CartNotFoundError,
+    CartItemNotFoundError,
+    ProductOutOfStockError,
+    InsufficientStockError,
+)
+
 
 def user_already_exists_handler(
     request: Request,
@@ -93,6 +100,54 @@ def product_not_found_handler(
 def product_already_exists_handler(
     request: Request,
     exc: ProductAlreadyExistsError,
+):
+    return JSONResponse(
+        status_code=409,
+        content={
+            "detail": str(exc)
+        },
+    )
+
+
+def cart_not_found_handler(
+    request: Request,
+    exc: CartNotFoundError,
+):
+    return JSONResponse(
+        status_code=404,
+        content={
+            "detail": str(exc)
+        },
+    )
+
+
+def cart_item_not_found_handler(
+    request: Request,
+    exc: CartItemNotFoundError,
+):
+    return JSONResponse(
+        status_code=404,
+        content={
+            "detail": str(exc)
+        },
+    )
+
+
+def product_out_of_stock_handler(
+    request: Request,
+    exc: ProductOutOfStockError,
+):
+    return JSONResponse(
+        status_code=409,
+        content={
+            "detail": str(exc)
+        },
+    )
+
+
+def insufficient_stock_handler(
+    request: Request,
+    exc: InsufficientStockError,
 ):
     return JSONResponse(
         status_code=409,

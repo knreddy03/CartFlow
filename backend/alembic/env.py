@@ -11,6 +11,8 @@ from app.models.refresh_token import RefreshToken
 from app.models.email_verification_token import EmailVerificationToken
 from app.models.category import Category
 from app.models.product import Product
+from app.models.cart import Cart
+from app.models.cart_item import CartItem
 from app.core.config import settings
 
 # this is the Alembic Config object, which provides

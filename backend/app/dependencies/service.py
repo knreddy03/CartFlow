@@ -9,6 +9,11 @@ from app.services.refresh_token_service import RefreshTokenService
 from app.services.email_verification_service import EmailVerificationService
 from app.services.category_service import CategoryService
 from app.services.product_service import ProductService
+from app.services.cart_service import CartService
+
+from app.repositories.product_repository import ProductRepository
+from app.repositories.cart_repository import CartRepository
+from app.repositories.cart_item_repository import CartItemRepository
 
 
 def get_user_service(
@@ -48,3 +53,14 @@ def get_product_service(
     db: Session = Depends(get_db),
 ) -> ProductService:
     return ProductService(db)
+
+
+def get_cart_service(
+    db: Session = Depends(get_db),
+) -> CartService:
+    return CartService(
+        db=db,
+        cart_repository=CartRepository(db),
+        cart_item_repository=CartItemRepository(db),
+        product_repository=ProductRepository(db),
+        )
