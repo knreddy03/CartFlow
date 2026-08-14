@@ -7,6 +7,11 @@ from app.core.config import settings
 from app.db.database import get_db
 from app.main import app
 
+from datetime import date
+
+from app.dependencies.user import get_current_user_id
+from app.models.user import User
+
 
 test_engine = create_engine(
     settings.test_database_url,
@@ -43,6 +48,42 @@ def client(db_session):
     app.dependency_overrides.clear()
 
 
+@pytest.fixture
+def authenticated_user(db_session):
+    user = User(
+        first_name="Test",
+        last_name="User",
+        mobile="1234567890",
+        email="test@example.com",
+        password="hashed-password",
+        date_of_birth=date(1995, 1, 1),
+        is_verified=True,
+    )
+
+    db_session.add(user)
+    db_session.commit()
+    db_session.refresh(user)
+
+    return user
+
+
+@pytest.fixture
+def authenticated_client(client, authenticated_user):
+    def override_get_current_user_id():
+        return authenticated_user.id
+
+    app.dependency_overrides[get_current_user_id] = (
+        override_get_current_user_id
+    )
+
+    yield client
+
+    app.dependency_overrides.pop(
+        get_current_user_id,
+        None,
+    )
+
+    
 @pytest.fixture(autouse=True)
 def clean_database():
     with test_engine.begin() as connection:
@@ -52,6 +93,9 @@ def clean_database():
                 TRUNCATE TABLE
                     email_verification_tokens,
                     refresh_tokens,
+                    carts,
+                    cart_items,
+                    products,
                     categories,
                     users
                 RESTART IDENTITY CASCADE
@@ -68,6 +112,9 @@ def clean_database():
                 TRUNCATE TABLE
                     email_verification_tokens,
                     refresh_tokens,
+                    carts,
+                    cart_items,
+                    products,
                     categories,
                     users
                 RESTART IDENTITY CASCADE
