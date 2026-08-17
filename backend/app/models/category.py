@@ -13,3 +13,4 @@ class Category(BaseModel):
     is_active: Mapped[bool] = mapped_column(Boolean, default=True, nullable=False)
 
     products = relationship("Product", back_populates="category")
+    sub_categories = relationship("SubCategory", back_populates="category",)
