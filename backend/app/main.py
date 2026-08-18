@@ -18,6 +18,7 @@ from app.core.exception_handlers import (
     sub_category_not_found_handler,
     product_not_found_handler,
     product_already_exists_handler,
+    min_price_greater_than_max_price_handler,
     cart_not_found_handler,
     cart_item_not_found_handler,
     product_out_of_stock_handler,
@@ -43,6 +44,7 @@ from app.exceptions.sub_category_exceptions import (
 from app.exceptions.product_exceptions import (
     ProductNotFoundError,
     ProductAlreadyExistsError,
+    MinPriceGreaterThanMaxPriceError,
 )
 
 from app.exceptions.cart_exceptions import (
@@ -112,6 +114,11 @@ app.add_exception_handler(
 app.add_exception_handler(
     ProductAlreadyExistsError,
     product_already_exists_handler,
+)
+
+app.add_exception_handler(
+    MinPriceGreaterThanMaxPriceError,
+    min_price_greater_than_max_price_handler,
 )
 
 app.add_exception_handler(
