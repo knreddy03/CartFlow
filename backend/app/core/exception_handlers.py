@@ -20,6 +20,7 @@ from app.exceptions.sub_category_exceptions import (
 from app.exceptions.product_exceptions import (
     ProductNotFoundError,
     ProductAlreadyExistsError,
+    MinPriceGreaterThanMaxPriceError,
 )
 
 from app.exceptions.cart_exceptions import (
@@ -132,6 +133,18 @@ def product_already_exists_handler(
 ):
     return JSONResponse(
         status_code=409,
+        content={
+            "detail": str(exc)
+        },
+    )
+
+
+def min_price_greater_than_max_price_handler(
+    request: Request,
+    exc: MinPriceGreaterThanMaxPriceError,
+):
+    return JSONResponse(
+        status_code=400,
         content={
             "detail": str(exc)
         },
