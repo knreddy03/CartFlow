@@ -12,6 +12,11 @@ from app.exceptions.category_exceptions import (
     CategoryAlreadyExistsError,
 )
 
+from app.exceptions.sub_category_exceptions import (
+    SubCategoryNotFoundError,
+    SubCategoryAlreadyExistsError,
+)
+
 from app.exceptions.product_exceptions import (
     ProductNotFoundError,
     ProductAlreadyExistsError,
@@ -76,6 +81,30 @@ def category_not_found_handler(
 def category_already_exists_handler(
     request: Request,
     exc: CategoryAlreadyExistsError,
+):
+    return JSONResponse(
+        status_code=409,
+        content={
+            "detail": str(exc)
+        },
+    )
+
+
+def sub_category_not_found_handler(
+    request: Request,
+    exc: SubCategoryNotFoundError,
+):
+    return JSONResponse(
+        status_code=404,
+        content={
+            "detail": str(exc)
+        },
+    )
+
+
+def sub_category_already_exists_handler(
+    request: Request,
+    exc: SubCategoryAlreadyExistsError,
 ):
     return JSONResponse(
         status_code=409,

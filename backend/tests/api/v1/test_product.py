@@ -1,14 +1,22 @@
 from uuid import uuid4
+
 from app.models.category import Category
 from app.models.product import Product
+from app.models.sub_category import SubCategory
 
 
-def test_create_product(client, db_session):
+def create_category_and_sub_category(
+    db_session,
+    category_name="Men",
+    category_slug="men",
+    sub_category_name="Shirts",
+    sub_category_slug="shirts",
+):
     category = Category(
-        name="Men",
-        slug="men",
-        description="Men's clothing",
-        image_url="https://example.com/images/men.jpg",
+        name=category_name,
+        slug=category_slug,
+        description=f"{category_name} clothing",
+        image_url=f"https://example.com/images/{category_slug}.jpg",
         is_active=True,
     )
 
@@ -16,10 +24,35 @@ def test_create_product(client, db_session):
     db_session.commit()
     db_session.refresh(category)
 
+    sub_category = SubCategory(
+        category_id=category.id,
+        name=sub_category_name,
+        slug=sub_category_slug,
+        description=f"{sub_category_name} for {category_name}",
+        image_url=f"https://example.com/images/{sub_category_slug}.jpg",
+        is_active=True,
+    )
+
+    db_session.add(sub_category)
+    db_session.commit()
+    db_session.refresh(sub_category)
+
+    return category, sub_category
+
+
+def test_create_product(client, db_session):
+    category, sub_category = create_category_and_sub_category(
+        db_session,
+        category_name="Men",
+        category_slug="men",
+        sub_category_name="Shirts",
+        sub_category_slug="shirts",
+    )
+
     response = client.post(
         "/products",
         json={
-            "category_id": str(category.id),
+            "sub_category_id": str(sub_category.id),
             "name": "Men's Shirt",
             "slug": "mens-shirt",
             "description": "Men's clothing and accessories",
@@ -41,7 +74,7 @@ def test_create_product(client, db_session):
     assert data["price"] == 1999
     assert data["currency"] == "USD"
     assert data["stock_quantity"] == 25
-    assert data["category_id"] == str(category.id)
+    assert data["sub_category_id"] == str(sub_category.id)
     assert data["image_url"] == "https://example.com/images/mens-shirt.jpg"
     assert data["is_active"] is True
     assert "id" in data
@@ -51,7 +84,7 @@ def test_create_product(client, db_session):
     product = db_session.get(Product, data["id"])
 
     assert product is not None
-    assert product.category_id == category.id
+    assert product.sub_category_id == sub_category.id
     assert product.name == "Men's Shirt"
     assert product.slug == "mens-shirt"
     assert product.price == 1999
@@ -60,22 +93,18 @@ def test_create_product(client, db_session):
 
 
 def test_get_products(client, db_session):
-    category = Category(
-        name="Women",
-        slug="women",
-        description="Women's clothing",
-        image_url="https://example.com/images/women.jpg",
-        is_active=True,
+    category, sub_category = create_category_and_sub_category(
+        db_session,
+        category_name="Women",
+        category_slug="women",
+        sub_category_name="Dresses",
+        sub_category_slug="dresses",
     )
-
-    db_session.add(category)
-    db_session.commit()
-    db_session.refresh(category)
 
     create_response = client.post(
         "/products",
         json={
-            "category_id": str(category.id),
+            "sub_category_id": str(sub_category.id),
             "name": "Women's Dress",
             "slug": "womens-dress",
             "description": "Women's summer dress",
@@ -99,7 +128,7 @@ def test_get_products(client, db_session):
 
     product = data[0]
 
-    assert product["category_id"] == str(category.id)
+    assert product["sub_category_id"] == str(sub_category.id)
     assert product["name"] == "Women's Dress"
     assert product["slug"] == "womens-dress"
     assert product["description"] == "Women's summer dress"
@@ -111,22 +140,18 @@ def test_get_products(client, db_session):
 
 
 def test_get_product_by_id(client, db_session):
-    category = Category(
-        name="Kids",
-        slug="kids",
-        description="Kids clothing",
-        image_url="https://example.com/images/kids.jpg",
-        is_active=True,
+    category, sub_category = create_category_and_sub_category(
+        db_session,
+        category_name="Kids",
+        category_slug="kids",
+        sub_category_name="T-Shirts",
+        sub_category_slug="t-shirts",
     )
-
-    db_session.add(category)
-    db_session.commit()
-    db_session.refresh(category)
 
     create_response = client.post(
         "/products",
         json={
-            "category_id": str(category.id),
+            "sub_category_id": str(sub_category.id),
             "name": "Kids T-Shirt",
             "slug": "kids-t-shirt",
             "description": "Kids cotton t-shirt",
@@ -150,7 +175,7 @@ def test_get_product_by_id(client, db_session):
     data = response.json()
 
     assert data["id"] == product_id
-    assert data["category_id"] == str(category.id)
+    assert data["sub_category_id"] == str(sub_category.id)
     assert data["name"] == "Kids T-Shirt"
     assert data["slug"] == "kids-t-shirt"
     assert data["description"] == "Kids cotton t-shirt"
@@ -171,22 +196,18 @@ def test_get_product_not_found(client):
 
 
 def test_update_product(client, db_session):
-    category = Category(
-        name="Men",
-        slug="men",
-        description="Men's clothing",
-        image_url="https://example.com/images/men.jpg",
-        is_active=True,
+    category, sub_category = create_category_and_sub_category(
+        db_session,
+        category_name="Men",
+        category_slug="men",
+        sub_category_name="Shirts",
+        sub_category_slug="shirts",
     )
-
-    db_session.add(category)
-    db_session.commit()
-    db_session.refresh(category)
 
     create_response = client.post(
         "/products",
         json={
-            "category_id": str(category.id),
+            "sub_category_id": str(sub_category.id),
             "name": "Men's Shirt",
             "slug": "mens-shirt",
             "description": "Men's clothing",
@@ -217,7 +238,7 @@ def test_update_product(client, db_session):
     data = response.json()
 
     assert data["id"] == product_id
-    assert data["category_id"] == str(category.id)
+    assert data["sub_category_id"] == str(sub_category.id)
     assert data["name"] == "Men's Premium Shirt"
     assert data["slug"] == "mens-shirt"
     assert data["description"] == "Premium men's shirt"
@@ -229,20 +250,16 @@ def test_update_product(client, db_session):
 
 
 def test_create_duplicate_product(client, db_session):
-    category = Category(
-        name="Women",
-        slug="women",
-        description="Women's clothing",
-        image_url="https://example.com/images/women.jpg",
-        is_active=True,
+    category, sub_category = create_category_and_sub_category(
+        db_session,
+        category_name="Women",
+        category_slug="women",
+        sub_category_name="Dresses",
+        sub_category_slug="dresses",
     )
 
-    db_session.add(category)
-    db_session.commit()
-    db_session.refresh(category)
-
     product_data = {
-        "category_id": str(category.id),
+        "sub_category_id": str(sub_category.id),
         "name": "Women's Dress",
         "slug": "womens-dress",
         "description": "Women's summer dress",
@@ -282,22 +299,18 @@ def test_update_product_not_found(client):
 
 
 def test_delete_product(client, db_session):
-    category = Category(
-        name="Kids",
-        slug="kids",
-        description="Kids clothing and accessories",
-        image_url="https://example.com/images/kids.jpg",
-        is_active=True,
+    category, sub_category = create_category_and_sub_category(
+        db_session,
+        category_name="Kids",
+        category_slug="kids",
+        sub_category_name="T-Shirts",
+        sub_category_slug="t-shirts",
     )
-
-    db_session.add(category)
-    db_session.commit()
-    db_session.refresh(category)
 
     create_response = client.post(
         "/products",
         json={
-            "category_id": str(category.id),
+            "sub_category_id": str(sub_category.id),
             "name": "Kids T-Shirt",
             "slug": "kids-t-shirt",
             "description": "Kids cotton t-shirt",

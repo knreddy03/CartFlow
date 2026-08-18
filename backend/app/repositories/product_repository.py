@@ -27,10 +27,10 @@ class ProductRepository:
         stmt = select(Product).order_by(Product.name)
         return list(self.db.scalars(stmt).all())
 
-    def get_by_category(self, category_id: UUID) -> list[Product]:
-        stmt = select(Product).where(Product.category_id == category_id).order_by(Product.name)
+    def get_by_sub_category(self, sub_category_id: UUID) -> list[Product]:
+        stmt = select(Product).where(Product.sub_category_id == sub_category_id).order_by(Product.name)
         return list(self.db.scalars(stmt).all())
 
     def delete(self, product: Product) -> None:
-            self.db.delete(product)
+        self.db.delete(product)
     
