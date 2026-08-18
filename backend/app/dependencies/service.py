@@ -10,6 +10,7 @@ from app.services.email_verification_service import EmailVerificationService
 from app.services.category_service import CategoryService
 from app.services.product_service import ProductService
 from app.services.cart_service import CartService
+from app.services.sub_category_service import SubCategoryService
 
 from app.repositories.product_repository import ProductRepository
 from app.repositories.cart_repository import CartRepository
@@ -64,3 +65,9 @@ def get_cart_service(
         cart_item_repository=CartItemRepository(db),
         product_repository=ProductRepository(db),
         )
+
+
+def get_sub_category_service(
+    db: Session = Depends(get_db),
+) -> SubCategoryService:
+    return SubCategoryService(db)

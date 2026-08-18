@@ -46,17 +46,17 @@ def get_products(
 
 
 @router.get(
-    "/category/{category_id}",
+    "/sub_category/{sub_category_id}",
     response_model=list[ProductResponse],
 )
-def get_products_by_category(
-    category_id: UUID,
+def get_products_by_sub_category(
+    sub_category_id: UUID,
     product_service: ProductService = Depends(get_product_service),
 ):
     """
-    Get products by category.
+    Get products by sub category.
     """
-    return product_service.get_products_by_category(category_id)
+    return product_service.get_products_by_sub_category(sub_category_id)
 
 
 @router.get(

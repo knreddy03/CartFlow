@@ -96,6 +96,7 @@ def clean_database():
                     carts,
                     cart_items,
                     products,
+                    sub_categories,
                     categories,
                     users
                 RESTART IDENTITY CASCADE
@@ -115,6 +116,7 @@ def clean_database():
                     carts,
                     cart_items,
                     products,
+                    sub_categories,
                     categories,
                     users
                 RESTART IDENTITY CASCADE

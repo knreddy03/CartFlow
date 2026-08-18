@@ -1,12 +1,12 @@
+import { useMutation } from "@tanstack/react-query";
 import { useForm } from "react-hook-form";
-
 import { zodResolver } from "@hookform/resolvers/zod";
 
+import Button from "../../../components/common/Button";
+import Input from "../../../components/common/Input";
+
 import { registerSchema } from "../auth.types";
-
 import type { RegisterFormData } from "../auth.types";
-
-import { useMutation } from "@tanstack/react-query";
 
 import { registerUser } from "../api/auth.api";
 
@@ -37,61 +37,63 @@ export default function RegisterForm() {
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
-      <input
+      <Input
+        id="first_name"
+        label="First Name"
+        placeholder="Enter your first name"
+        error={errors.first_name?.message}
         {...register("first_name")}
-        placeholder="First Name"
-        className="w-full rounded-lg border px-4 py-2"
       />
 
-      <p className="text-sm text-red-500">{errors.first_name?.message}</p>
-
-      <input
+      <Input
+        id="last_name"
+        label="Last Name"
+        placeholder="Enter your last name"
+        error={errors.last_name?.message}
         {...register("last_name")}
-        placeholder="Last Name"
-        className="w-full rounded-lg border px-4 py-2"
       />
 
-      <p className="text-sm text-red-500">{errors.last_name?.message}</p>
-
-      <input
+      <Input
+        id="date_of_birth"
+        label="Date of Birth"
+        type="date"
+        error={errors.date_of_birth?.message}
         {...register("date_of_birth")}
-        placeholder="Date of Birth"
-        className="w-full rounded-lg border px-4 py-2"
       />
 
-      <p className="text-sm text-red-500">{errors.date_of_birth?.message}</p>
-
-      <input
+      <Input
+        id="mobile"
+        label="Mobile"
+        type="tel"
+        autoComplete="tel"
+        placeholder="Enter your mobile number"
+        error={errors.mobile?.message}
         {...register("mobile")}
-        placeholder="Mobile"
-        className="w-full rounded-lg border px-4 py-2"
       />
 
-      <p className="text-sm text-red-500">{errors.mobile?.message}</p>
-
-      <input
+      <Input
+        id="email"
+        label="Email"
+        type="email"
+        autoComplete="email"
+        placeholder="Enter your email"
+        error={errors.email?.message}
         {...register("email")}
-        placeholder="Email"
-        className="w-full rounded-lg border px-4 py-2"
       />
 
-      <p className="text-sm text-red-500">{errors.email?.message}</p>
-
-      <input
+      <Input
+        id="password"
+        label="Password"
         type="password"
+        autoComplete="new-password"
+        placeholder="Create a password"
+        error={errors.password?.message}
         {...register("password")}
-        placeholder="Password"
-        className="w-full rounded-lg border px-4 py-2"
       />
 
-      <p className="text-sm text-red-500">{errors.password?.message}</p>
-
-      <button
-        disabled={mutation.isPending}
-        className="w-full rounded-lg bg-blue-600 py-2 text-white"
-      >
+      <Button type="submit" fullWidth disabled={mutation.isPending}>
         {mutation.isPending ? "Creating..." : "Create Account"}
-      </button>
+      </Button>
     </form>
   );
 }

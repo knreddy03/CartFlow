@@ -1,11 +1,11 @@
-from uuid import uuid4
 from datetime import date
-
-from app.models.category import Category
-from app.models.product import Product
+from uuid import uuid4
 
 from app.dependencies.user import get_current_user_id
 from app.main import app
+from app.models.category import Category
+from app.models.product import Product
+from app.models.sub_category import SubCategory
 from app.models.user import User
 
 
@@ -25,9 +25,32 @@ def create_category(db_session):
     return category
 
 
-def create_product(
+def create_sub_category(
     db_session,
     category,
+    *,
+    name="Shirts",
+    slug="shirts",
+):
+    sub_category = SubCategory(
+        category_id=category.id,
+        name=name,
+        slug=slug,
+        description="Men's shirts",
+        image_url="https://example.com/images/shirts.jpg",
+        is_active=True,
+    )
+
+    db_session.add(sub_category)
+    db_session.commit()
+    db_session.refresh(sub_category)
+
+    return sub_category
+
+
+def create_product(
+    db_session,
+    sub_category,
     *,
     name="Men's Shirt",
     slug="mens-shirt",
@@ -36,7 +59,7 @@ def create_product(
     is_active=True,
 ):
     product = Product(
-        category_id=category.id,
+        sub_category_id=sub_category.id,
         name=name,
         slug=slug,
         description="Men's clothing",
@@ -71,7 +94,8 @@ def test_get_cart(authenticated_client):
 
 def test_add_item_to_cart(authenticated_client, db_session):
     category = create_category(db_session)
-    product = create_product(db_session, category)
+    sub_category = create_sub_category(db_session, category)
+    product = create_product(db_session, sub_category)
 
     response = authenticated_client.post(
         "/cart/items",
@@ -92,9 +116,13 @@ def test_add_item_to_cart(authenticated_client, db_session):
     assert "updated_at" in data
 
 
-def test_add_same_product_increases_quantity(authenticated_client, db_session):
+def test_add_same_product_increases_quantity(
+    authenticated_client,
+    db_session,
+):
     category = create_category(db_session)
-    product = create_product(db_session, category)
+    sub_category = create_sub_category(db_session, category)
+    product = create_product(db_session, sub_category)
 
     first_response = authenticated_client.post(
         "/cart/items",
@@ -124,7 +152,8 @@ def test_add_same_product_increases_quantity(authenticated_client, db_session):
 
 def test_update_cart_item(authenticated_client, db_session):
     category = create_category(db_session)
-    product = create_product(db_session, category)
+    sub_category = create_sub_category(db_session, category)
+    product = create_product(db_session, sub_category)
 
     create_response = authenticated_client.post(
         "/cart/items",
@@ -156,7 +185,8 @@ def test_update_cart_item(authenticated_client, db_session):
 
 def test_delete_cart_item(authenticated_client, db_session):
     category = create_category(db_session)
-    product = create_product(db_session, category)
+    sub_category = create_sub_category(db_session, category)
+    product = create_product(db_session, sub_category)
 
     create_response = authenticated_client.post(
         "/cart/items",
@@ -214,12 +244,16 @@ def test_delete_cart_item_not_found(authenticated_client):
     assert response.status_code == 404
 
 
-def test_add_out_of_stock_product(authenticated_client, db_session):
+def test_add_out_of_stock_product(
+    authenticated_client,
+    db_session,
+):
     category = create_category(db_session)
+    sub_category = create_sub_category(db_session, category)
 
     product = create_product(
         db_session,
-        category,
+        sub_category,
         stock_quantity=0,
     )
 
@@ -235,12 +269,16 @@ def test_add_out_of_stock_product(authenticated_client, db_session):
     assert response.json()["detail"] == "Product is out of stock."
 
 
-def test_add_quantity_exceeds_stock(authenticated_client, db_session):
+def test_add_quantity_exceeds_stock(
+    authenticated_client,
+    db_session,
+):
     category = create_category(db_session)
+    sub_category = create_sub_category(db_session, category)
 
     product = create_product(
         db_session,
-        category,
+        sub_category,
         stock_quantity=5,
     )
 
@@ -264,10 +302,11 @@ def test_add_existing_quantity_exceeds_stock(
     db_session,
 ):
     category = create_category(db_session)
+    sub_category = create_sub_category(db_session, category)
 
     product = create_product(
         db_session,
-        category,
+        sub_category,
         stock_quantity=5,
     )
 
@@ -296,12 +335,16 @@ def test_add_existing_quantity_exceeds_stock(
     )
 
 
-def test_add_inactive_product(authenticated_client, db_session):
+def test_add_inactive_product(
+    authenticated_client,
+    db_session,
+):
     category = create_category(db_session)
+    sub_category = create_sub_category(db_session, category)
 
     product = create_product(
         db_session,
-        category,
+        sub_category,
         is_active=False,
         stock_quantity=10,
     )
@@ -323,10 +366,11 @@ def test_update_quantity_exceeds_stock(
     db_session,
 ):
     category = create_category(db_session)
+    sub_category = create_sub_category(db_session, category)
 
     product = create_product(
         db_session,
-        category,
+        sub_category,
         stock_quantity=5,
     )
 
@@ -362,7 +406,8 @@ def test_user_cannot_modify_another_users_cart_item(
     db_session,
 ):
     category = create_category(db_session)
-    product = create_product(db_session, category)
+    sub_category = create_sub_category(db_session, category)
+    product = create_product(db_session, sub_category)
 
     # User A adds the product to their cart.
     create_response = authenticated_client.post(
@@ -421,8 +466,10 @@ def test_user_cannot_delete_another_users_cart_item(
     db_session,
 ):
     category = create_category(db_session)
-    product = create_product(db_session, category)
+    sub_category = create_sub_category(db_session, category)
+    product = create_product(db_session, sub_category)
 
+    # User A adds the product to their cart.
     create_response = authenticated_client.post(
         "/cart/items",
         json={
@@ -435,6 +482,7 @@ def test_user_cannot_delete_another_users_cart_item(
 
     cart_item_id = create_response.json()["id"]
 
+    # Create User B.
     user_b = User(
         first_name="Another",
         last_name="User",
@@ -449,6 +497,7 @@ def test_user_cannot_delete_another_users_cart_item(
     db_session.commit()
     db_session.refresh(user_b)
 
+    # Authenticate as User B.
     def override_user_b():
         return user_b.id
 

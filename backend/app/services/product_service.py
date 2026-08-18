@@ -2,13 +2,13 @@ from uuid import UUID
 
 from sqlalchemy.orm import Session
 
-from app.exceptions.category_exceptions import CategoryNotFoundError
+from app.exceptions.sub_category_exceptions import SubCategoryNotFoundError
 from app.exceptions.product_exceptions import (
     ProductAlreadyExistsError,
     ProductNotFoundError,
 )
 from app.models.product import Product
-from app.repositories.category_repository import CategoryRepository
+from app.repositories.sub_category_repository import SubCategoryRepository
 from app.repositories.product_repository import ProductRepository
 from app.schemas.product_schema import ProductCreate, ProductUpdate
 
@@ -18,16 +18,16 @@ class ProductService:
     def __init__(self, db: Session):
         self.db = db
         self.product_repository = ProductRepository(db)
-        self.category_repository = CategoryRepository(db)
+        self.sub_category_repository = SubCategoryRepository(db)
 
     def create_product(self, product_data: ProductCreate) -> Product:
 
-        category = self.category_repository.get_by_id(
-            product_data.category_id
+        sub_category = self.sub_category_repository.get_by_id(
+            product_data.sub_category_id
         )
 
-        if category is None:
-            raise CategoryNotFoundError("Category not found.")
+        if sub_category is None:
+            raise SubCategoryNotFoundError("Sub Category not found.")
 
         existing_name = self.product_repository.get_by_name(
             product_data.name
@@ -48,7 +48,7 @@ class ProductService:
             )
 
         product = Product(
-            category_id=product_data.category_id,
+            sub_category_id=product_data.sub_category_id,
             name=product_data.name,
             slug=product_data.slug,
             description=product_data.description,
@@ -85,16 +85,16 @@ class ProductService:
     def get_all_products(self) -> list[Product]:
         return self.product_repository.get_all()
 
-    def get_products_by_category(
+    def get_products_by_sub_category(
         self,
-        category_id: UUID,
+        sub_category_id: UUID,
     ) -> list[Product]:
-        category = self.category_repository.get_by_id(category_id)
+        sub_category = self.sub_category_repository.get_by_id(sub_category_id)
 
-        if category is None:
-            raise CategoryNotFoundError("Category not found.")
+        if sub_category is None:
+            raise SubCategoryNotFoundError("Sub Category not found.")
 
-        return self.product_repository.get_by_category(category_id)
+        return self.product_repository.get_by_sub_category(sub_category_id)
 
     def update_product(
         self,
@@ -106,13 +106,13 @@ class ProductService:
 
         update_data = product_data.model_dump(exclude_unset=True)
 
-        if "category_id" in update_data:
-            category = self.category_repository.get_by_id(
-                update_data["category_id"]
+        if "sub_category_id" in update_data:
+            sub_category = self.sub_category_repository.get_by_id(
+                update_data["sub_category_id"]
             )
 
-            if category is None:
-                raise CategoryNotFoundError("Category not found.")
+            if sub_category is None:
+                raise SubCategoryNotFoundError("Sub Category not found.")
 
         if "name" in update_data:
             existing_product = self.product_repository.get_by_name(

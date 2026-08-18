@@ -5,7 +5,7 @@ from pydantic import BaseModel, ConfigDict, Field
 
 
 class ProductBase(BaseModel):
-    category_id: UUID = Field(..., description="The ID of the category this product belongs to")
+    sub_category_id: UUID = Field(..., description="The ID of the sub-category this product belongs to")
     name: str = Field(..., min_length=2, max_length=100)
     slug: str = Field(..., min_length=2, max_length=100)
     description: str | None = Field(default=None, max_length=500)
@@ -21,7 +21,7 @@ class ProductCreate(ProductBase):
 
 
 class ProductUpdate(BaseModel):
-    category_id: UUID | None = Field(default=None, description="The ID of the category this product belongs to")
+    sub_category_id: UUID | None = Field(default=None, description="The ID of the sub-category this product belongs to")
     name: str | None = Field(default=None, min_length=2, max_length=100)
     slug: str | None = Field(default=None, min_length=2, max_length=100)
     description: str | None = Field(default=None, max_length=500)
