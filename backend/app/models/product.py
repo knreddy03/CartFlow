@@ -14,7 +14,7 @@ class Product(BaseModel):
         CheckConstraint("stock_quantity >= 0",name="ck_products_stock_non_negative",),
     )
 
-    category_id: Mapped[UUID] = mapped_column(ForeignKey("categories.id"), index=True, nullable=False, )
+    sub_category_id: Mapped[UUID] = mapped_column(ForeignKey("sub_categories.id"), index=True, nullable=False, )
     name: Mapped[str] = mapped_column(String(100), nullable=False, )
     slug: Mapped[str] = mapped_column(String(100), unique=True, index=True, nullable=False, )
     description: Mapped[str | None] = mapped_column(String(500), nullable=True, )
@@ -25,6 +25,6 @@ class Product(BaseModel):
     image_url: Mapped[str] = mapped_column(String(255), nullable=False, )
     is_active: Mapped[bool] = mapped_column(Boolean, default=True, nullable=False, )
 
-    category = relationship("Category", back_populates="products")
+    sub_category = relationship("SubCategory", back_populates="products")
     cart_items = relationship("CartItem",back_populates="product",)
     

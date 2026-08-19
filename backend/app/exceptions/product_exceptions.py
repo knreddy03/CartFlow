@@ -5,3 +5,7 @@ class ProductNotFoundError(Exception):
 
 class ProductAlreadyExistsError(Exception):
     pass
+
+
+class MinPriceGreaterThanMaxPriceError(Exception):
+    pass

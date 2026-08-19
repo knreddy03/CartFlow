@@ -1,10 +1,11 @@
 from uuid import UUID
 
-from fastapi import APIRouter, Depends, Response, status
+from fastapi import APIRouter, Depends, Query, Response, status
 
 from app.dependencies.service import get_product_service
 from app.schemas.product_schema import (
     ProductCreate,
+    ProductListResponse,
     ProductResponse,
     ProductUpdate,
 )
@@ -34,29 +35,51 @@ def create_product(
 
 @router.get(
     "",
-    response_model=list[ProductResponse],
+    response_model=ProductListResponse,
 )
 def get_products(
+    sub_category_id: UUID | None = Query(
+        default=None,
+        description="Filter products by sub-category ID",
+    ),
+    is_active: bool | None = Query(
+        default=None,
+        description="Filter products by active status",
+    ),
+    min_price: int | None = Query(
+        default=None,
+        ge=0,
+        description="Minimum product price in cents",
+    ),
+    max_price: int | None = Query(
+        default=None,
+        ge=0,
+        description="Maximum product price in cents",
+    ),
+    page: int = Query(
+        default=1,
+        ge=1,
+        description="Page number",
+    ),
+    page_size: int = Query(
+        default=20,
+        ge=1,
+        le=100,
+        description="Number of products per page",
+    ),
     product_service: ProductService = Depends(get_product_service),
 ):
     """
-    Get all products.
+    Get products with optional filtering and pagination.
     """
-    return product_service.get_all_products()
-
-
-@router.get(
-    "/category/{category_id}",
-    response_model=list[ProductResponse],
-)
-def get_products_by_category(
-    category_id: UUID,
-    product_service: ProductService = Depends(get_product_service),
-):
-    """
-    Get products by category.
-    """
-    return product_service.get_products_by_category(category_id)
+    return product_service.get_products(
+        sub_category_id=sub_category_id,
+        is_active=is_active,
+        min_price=min_price,
+        max_price=max_price,
+        page=page,
+        page_size=page_size,
+    )
 
 
 @router.get(

@@ -12,9 +12,15 @@ from app.exceptions.category_exceptions import (
     CategoryAlreadyExistsError,
 )
 
+from app.exceptions.sub_category_exceptions import (
+    SubCategoryNotFoundError,
+    SubCategoryAlreadyExistsError,
+)
+
 from app.exceptions.product_exceptions import (
     ProductNotFoundError,
     ProductAlreadyExistsError,
+    MinPriceGreaterThanMaxPriceError,
 )
 
 from app.exceptions.cart_exceptions import (
@@ -85,6 +91,30 @@ def category_already_exists_handler(
     )
 
 
+def sub_category_not_found_handler(
+    request: Request,
+    exc: SubCategoryNotFoundError,
+):
+    return JSONResponse(
+        status_code=404,
+        content={
+            "detail": str(exc)
+        },
+    )
+
+
+def sub_category_already_exists_handler(
+    request: Request,
+    exc: SubCategoryAlreadyExistsError,
+):
+    return JSONResponse(
+        status_code=409,
+        content={
+            "detail": str(exc)
+        },
+    )
+
+
 def product_not_found_handler(
     request: Request,
     exc: ProductNotFoundError,
@@ -103,6 +133,18 @@ def product_already_exists_handler(
 ):
     return JSONResponse(
         status_code=409,
+        content={
+            "detail": str(exc)
+        },
+    )
+
+
+def min_price_greater_than_max_price_handler(
+    request: Request,
+    exc: MinPriceGreaterThanMaxPriceError,
+):
+    return JSONResponse(
+        status_code=400,
         content={
             "detail": str(exc)
         },

@@ -4,6 +4,7 @@ from app.core.config import settings
 from app.api.v1.user import router as user_router
 from app.api.v1.auth import router as auth_router
 from app.api.v1.category import router as category_router
+from app.api.v1.sub_category import router as sub_category_router
 from app.api.v1.product import router as product_router
 from app.api.v1.cart import router as cart_router
 
@@ -13,8 +14,11 @@ from app.core.exception_handlers import (
     invalid_credentials_handler,
     category_not_found_handler,
     category_already_exists_handler,
+    sub_category_already_exists_handler,
+    sub_category_not_found_handler,
     product_not_found_handler,
     product_already_exists_handler,
+    min_price_greater_than_max_price_handler,
     cart_not_found_handler,
     cart_item_not_found_handler,
     product_out_of_stock_handler,
@@ -32,9 +36,15 @@ from app.exceptions.category_exceptions import (
     CategoryAlreadyExistsError,
 )
 
+from app.exceptions.sub_category_exceptions import (
+    SubCategoryNotFoundError,
+    SubCategoryAlreadyExistsError,
+)
+
 from app.exceptions.product_exceptions import (
     ProductNotFoundError,
     ProductAlreadyExistsError,
+    MinPriceGreaterThanMaxPriceError,
 )
 
 from app.exceptions.cart_exceptions import (
@@ -87,6 +97,16 @@ app.add_exception_handler(
 )
 
 app.add_exception_handler(
+    SubCategoryNotFoundError,
+    sub_category_not_found_handler,
+)
+
+app.add_exception_handler(
+    SubCategoryAlreadyExistsError,
+    sub_category_already_exists_handler,
+)
+
+app.add_exception_handler(
     ProductNotFoundError,
     product_not_found_handler,
 )
@@ -94,6 +114,11 @@ app.add_exception_handler(
 app.add_exception_handler(
     ProductAlreadyExistsError,
     product_already_exists_handler,
+)
+
+app.add_exception_handler(
+    MinPriceGreaterThanMaxPriceError,
+    min_price_greater_than_max_price_handler,
 )
 
 app.add_exception_handler(
@@ -120,6 +145,7 @@ app.add_exception_handler(
 app.include_router(auth_router)
 app.include_router(user_router)
 app.include_router(category_router)
+app.include_router(sub_category_router)
 app.include_router(product_router)
 app.include_router(cart_router)
 
