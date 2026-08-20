@@ -8,7 +8,9 @@ function HomeLayout() {
     <>
       <Header variant="transparent" />
 
-      <Outlet />
+      <main>
+        <Outlet />
+      </main>
 
       <Footer />
     </>

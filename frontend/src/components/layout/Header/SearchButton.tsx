@@ -6,8 +6,16 @@ interface Props {
 
 function SearchButton({ transparent = false }: Props) {
   return (
-    <button className="rounded-full p-2 hover:bg-white/10">
-      <Search className={`h-5 w-5 ${transparent ? "text-white" : ""}`} />
+    <button
+      type="button"
+      aria-label="Search"
+      className={`group rounded-full p-2.5 transition-colors duration-300 ${
+        transparent
+          ? "text-white hover:bg-white/10"
+          : "text-neutral-800 hover:bg-neutral-100"
+      }`}
+    >
+      <Search className="h-[18px] w-[18px] transition-transform duration-300 group-hover:scale-105" />
     </button>
   );
 }

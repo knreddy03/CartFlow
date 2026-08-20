@@ -38,22 +38,27 @@ function ProfileMenu({ transparent = false }: ProfileMenuProps) {
   return (
     <div ref={menuRef} className="relative">
       <button
-        onClick={() => setOpen(!open)}
-        className="rounded-full p-2 hover:bg-gray-100"
+        type="button"
+        aria-label="Account"
+        aria-expanded={open}
+        onClick={() => setOpen((current) => !current)}
+        className={`group rounded-full p-2.5 transition-colors duration-300 ${
+          transparent
+            ? "text-white hover:bg-white/10"
+            : "text-neutral-800 hover:bg-neutral-100"
+        }`}
       >
-        <User
-          className={`h-5 w-5 ${transparent ? "text-white" : "text-gray-700"}`}
-        />
+        <User className="h-[18px] w-[18px] transition-transform duration-300 group-hover:scale-105" />
       </button>
 
       {open && (
-        <div className="absolute right-0 mt-2 w-48 rounded-lg border bg-white shadow-lg">
+        <div className="absolute right-0 top-full mt-3 w-52 border border-neutral-200 bg-white p-2 shadow-xl">
           {!isAuthenticated ? (
             <>
               <Link
                 to="/login"
                 onClick={() => setOpen(false)}
-                className="block px-4 py-3 hover:bg-gray-100"
+                className="block px-4 py-3 text-sm transition-colors hover:bg-neutral-50"
               >
                 Login
               </Link>
@@ -61,9 +66,9 @@ function ProfileMenu({ transparent = false }: ProfileMenuProps) {
               <Link
                 to="/register"
                 onClick={() => setOpen(false)}
-                className="block px-4 py-3 hover:bg-gray-100"
+                className="block px-4 py-3 text-sm transition-colors hover:bg-neutral-50"
               >
-                Register
+                Create Account
               </Link>
             </>
           ) : (
@@ -71,14 +76,15 @@ function ProfileMenu({ transparent = false }: ProfileMenuProps) {
               <Link
                 to="/profile"
                 onClick={() => setOpen(false)}
-                className="block px-4 py-3 hover:bg-gray-100"
+                className="block px-4 py-3 text-sm transition-colors hover:bg-neutral-50"
               >
                 My Profile
               </Link>
 
               <button
+                type="button"
                 onClick={handleLogout}
-                className="w-full px-4 py-3 text-left hover:bg-gray-100"
+                className="w-full px-4 py-3 text-left text-sm transition-colors hover:bg-neutral-50"
               >
                 Logout
               </button>
