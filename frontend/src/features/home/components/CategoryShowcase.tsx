@@ -1,4 +1,3 @@
-import { ArrowUpRight } from "lucide-react";
 import { Link } from "react-router-dom";
 
 import Loader from "../../../components/common/Loader";
@@ -9,37 +8,33 @@ function CategoryCard({ category }: { category: Category }) {
   return (
     <Link
       to={`/categories/${category.id}`}
-      className="group relative block min-h-[480px] overflow-hidden bg-neutral-200 sm:min-h-[560px]"
+      className="group relative block h-screen w-full snap-start overflow-hidden bg-neutral-100"
     >
       <img
         src={category.image_url}
         alt={category.name}
-        className="absolute inset-0 h-full w-full object-cover transition-transform duration-700 ease-out group-hover:scale-105"
+        className="absolute inset-0 h-full w-full object-cover transition-transform duration-[1800ms] ease-out group-hover:scale-[1.02]"
       />
 
-      <div className="absolute inset-0 bg-gradient-to-t from-black/65 via-black/10 to-transparent" />
+      {/* Very subtle readability overlay */}
+      <div className="absolute inset-0 bg-gradient-to-t from-black/45 via-transparent to-transparent" />
 
-      <div className="absolute inset-x-0 bottom-0 p-7 text-white sm:p-9">
-        <div className="flex items-end justify-between gap-6">
-          <div>
-            <p className="mb-3 text-xs uppercase tracking-[0.25em] text-white/70">
-              Collection
+      {/* Content */}
+      <div className="absolute inset-x-0 bottom-0 z-10 px-6 pb-14 sm:px-10 sm:pb-16 lg:px-16 lg:pb-20">
+        <div className="mx-auto max-w-[1600px] text-white">
+          <p className="mb-3 text-xs font-medium uppercase tracking-[0.35em] text-white/80">
+            Collection
+          </p>
+
+          <h2 className="text-6xl font-light tracking-[-0.04em] sm:text-7xl md:text-8xl lg:text-[9rem]">
+            {category.name}
+          </h2>
+
+          {category.description && (
+            <p className="mt-4 max-w-md text-sm leading-relaxed text-white/80 sm:text-base">
+              {category.description}
             </p>
-
-            <h3 className="text-4xl font-light tracking-tight sm:text-5xl">
-              {category.name}
-            </h3>
-
-            {category.description && (
-              <p className="mt-3 max-w-xs text-sm leading-relaxed text-white/75">
-                {category.description}
-              </p>
-            )}
-          </div>
-
-          <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full border border-white/50 transition-all duration-300 group-hover:border-white group-hover:bg-white group-hover:text-neutral-950">
-            <ArrowUpRight className="h-5 w-5 transition-transform duration-300 group-hover:rotate-45" />
-          </span>
+          )}
         </div>
       </div>
     </Link>
@@ -51,7 +46,7 @@ function CategoryShowcase() {
 
   if (isLoading) {
     return (
-      <section className="flex min-h-[400px] items-center justify-center bg-[#f8f7f4]">
+      <section className="flex h-screen items-center justify-center bg-neutral-950">
         <Loader />
       </section>
     );
@@ -59,8 +54,8 @@ function CategoryShowcase() {
 
   if (isError) {
     return (
-      <section className="bg-[#f8f7f4] px-5 py-24 text-center">
-        <p className="text-sm text-neutral-500">Unable to load categories.</p>
+      <section className="flex h-screen items-center justify-center bg-neutral-950 px-5 text-center">
+        <p className="text-sm text-neutral-400">Unable to load categories.</p>
       </section>
     );
   }
@@ -70,39 +65,11 @@ function CategoryShowcase() {
   }
 
   return (
-    <section className="bg-[#f8f7f4] px-5 py-24 sm:px-8 lg:px-12 lg:py-32">
-      <div className="mx-auto max-w-[1600px]">
-        <div className="mb-12 flex flex-col justify-between gap-5 md:mb-16 md:flex-row md:items-end">
-          <div>
-            <p className="mb-4 text-xs font-medium uppercase tracking-[0.3em] text-neutral-500">
-              Explore
-            </p>
-
-            <h2 className="max-w-xl text-4xl font-light tracking-tight sm:text-5xl lg:text-6xl">
-              Find your
-              <span className="italic"> style.</span>
-            </h2>
-          </div>
-
-          <p className="max-w-sm text-sm leading-relaxed text-neutral-500">
-            Explore carefully curated collections designed to bring effortless
-            style into every part of your wardrobe.
-          </p>
-        </div>
-
-        <div className="grid gap-4 md:grid-cols-2">
-          {categories.slice(0, 2).map((category) => (
-            <CategoryCard key={category.id} category={category} />
-          ))}
-
-          {categories.length >= 3 && (
-            <div className="md:col-span-2">
-              <CategoryCard category={categories[2]} />
-            </div>
-          )}
-        </div>
-      </div>
-    </section>
+    <main className="snap-y snap-mandatory">
+      {categories.map((category) => (
+        <CategoryCard key={category.id} category={category} />
+      ))}
+    </main>
   );
 }
 

@@ -13,7 +13,7 @@ interface HeaderProps {
   variant?: "transparent" | "solid";
 }
 
-function Header({ variant = "solid" }: HeaderProps) {
+function Header({ variant = "transparent" }: HeaderProps) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const mobileMenuButtonRef = useRef<HTMLButtonElement>(null);
@@ -30,7 +30,7 @@ function Header({ variant = "solid" }: HeaderProps) {
         }
       >
         <div className="mx-auto flex h-16 max-w-[1600px] items-center justify-between px-5 sm:px-8 lg:px-12">
-          {/* Mobile Menu Button */}
+          {/* Mobile Menu */}
           <button
             ref={mobileMenuButtonRef}
             type="button"

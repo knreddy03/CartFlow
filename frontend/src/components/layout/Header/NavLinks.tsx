@@ -12,13 +12,12 @@ function NavLinks({ transparent = false }: NavLinksProps) {
   const linkClass = (isActive: boolean) =>
     `relative py-2 text-xs font-medium uppercase tracking-[0.16em] transition-colors duration-300 ${
       transparent
-        ? "text-white/80 hover:text-white"
+        ? "text-white/85 hover:text-white"
         : "text-neutral-600 hover:text-neutral-950"
     } ${isActive ? (transparent ? "text-white" : "text-neutral-950") : ""}`;
 
   return (
     <nav aria-label="Main navigation" className="flex items-center gap-8">
-      {/* Home */}
       <NavLink to="/" className={({ isActive }) => linkClass(isActive)}>
         {({ isActive }) => (
           <>
@@ -32,7 +31,6 @@ function NavLinks({ transparent = false }: NavLinksProps) {
         )}
       </NavLink>
 
-      {/* Categories */}
       {!isLoading &&
         !isError &&
         categories
