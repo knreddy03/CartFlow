@@ -23,6 +23,11 @@ from app.exceptions.product_exceptions import (
     MinPriceGreaterThanMaxPriceError,
 )
 
+from app.exceptions.product_variant_exceptions import (
+    ProductVariantNotFoundError,
+    ProductVariantAlreadyExistsError,
+)
+
 from app.exceptions.cart_exceptions import (
     CartNotFoundError,
     CartItemNotFoundError,
@@ -130,6 +135,30 @@ def product_not_found_handler(
 def product_already_exists_handler(
     request: Request,
     exc: ProductAlreadyExistsError,
+):
+    return JSONResponse(
+        status_code=409,
+        content={
+            "detail": str(exc)
+        },
+    )
+
+
+def product_variant_not_found_handler(
+    request: Request,
+    exc: ProductVariantNotFoundError,
+):
+    return JSONResponse(
+        status_code=404,
+        content={
+            "detail": str(exc)
+        },
+    )
+
+
+def product_variant_already_exists_handler(
+    request: Request,
+    exc: ProductVariantAlreadyExistsError,
 ):
     return JSONResponse(
         status_code=409,
