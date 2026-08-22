@@ -13,7 +13,7 @@ interface HeaderProps {
   variant?: "transparent" | "solid";
 }
 
-function Header({ variant = "solid" }: HeaderProps) {
+function Header({ variant = "transparent" }: HeaderProps) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const mobileMenuButtonRef = useRef<HTMLButtonElement>(null);

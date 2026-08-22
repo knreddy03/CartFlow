@@ -1,13 +1,7 @@
-import Hero from "./components/Hero";
 import CategoryShowcase from "./components/CategoryShowcase";
 
 function Home() {
-  return (
-    <>
-      <Hero />
-      <CategoryShowcase />
-    </>
-  );
+  return <CategoryShowcase />;
 }
 
 export default Home;

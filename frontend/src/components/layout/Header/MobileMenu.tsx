@@ -4,6 +4,7 @@ import { X } from "lucide-react";
 import { Link } from "react-router-dom";
 
 import { useAuth } from "../../../features/auth/hooks/useAuth";
+import { useCategories } from "../../../features/category/hooks/useCategories";
 
 interface MobileMenuProps {
   open: boolean;
@@ -11,19 +12,11 @@ interface MobileMenuProps {
   triggerRef: RefObject<HTMLButtonElement | null>;
 }
 
-const links = [
-  { name: "Home", path: "/" },
-  { name: "Men", path: "/men" },
-  { name: "Women", path: "/women" },
-  { name: "Kids", path: "/kids" },
-  { name: "Sale", path: "/sale" },
-];
-
 function MobileMenu({ open, onClose, triggerRef }: MobileMenuProps) {
   const { isAuthenticated, logout } = useAuth();
+  const { data: categories = [], isLoading, isError } = useCategories();
 
   const hasOpenedRef = useRef(false);
-
   const closeButtonRef = useRef<HTMLButtonElement>(null);
 
   useEffect(() => {
@@ -40,6 +33,10 @@ function MobileMenu({ open, onClose, triggerRef }: MobileMenuProps) {
     hasOpenedRef.current = true;
 
     document.body.style.overflow = "hidden";
+
+    requestAnimationFrame(() => {
+      closeButtonRef.current?.focus();
+    });
 
     function handleKeyDown(event: KeyboardEvent) {
       if (event.key === "Escape") {
@@ -74,9 +71,13 @@ function MobileMenu({ open, onClose, triggerRef }: MobileMenuProps) {
     >
       {/* Header */}
       <div className="flex h-16 items-center justify-between border-b border-neutral-200 px-5 sm:px-8">
-        <span className="text-xl font-semibold uppercase tracking-[0.18em]">
+        <Link
+          to="/"
+          onClick={onClose}
+          className="text-xl font-semibold uppercase tracking-[0.18em]"
+        >
           CartFlow
-        </span>
+        </Link>
 
         <button
           ref={closeButtonRef}
@@ -92,18 +93,33 @@ function MobileMenu({ open, onClose, triggerRef }: MobileMenuProps) {
       {/* Navigation */}
       <nav className="px-5 py-10 sm:px-8">
         <div className="flex flex-col">
-          {links.map((link, index) => (
-            <Link
-              key={link.path}
-              to={link.path}
-              onClick={onClose}
-              className="flex items-center justify-between border-b border-neutral-200 py-5 text-3xl font-light tracking-tight transition-opacity hover:opacity-50"
-            >
-              <span>{link.name}</span>
+          <Link
+            to="/"
+            onClick={onClose}
+            className="flex items-center justify-between border-b border-neutral-200 py-5 text-3xl font-light tracking-tight transition-opacity hover:opacity-50"
+          >
+            <span>Home</span>
+            <span className="text-xs text-neutral-400">01</span>
+          </Link>
 
-              <span className="text-xs text-neutral-400">0{index + 1}</span>
-            </Link>
-          ))}
+          {!isLoading &&
+            !isError &&
+            categories
+              .filter((category) => category.is_active)
+              .map((category, index) => (
+                <Link
+                  key={category.id}
+                  to={`/categories/${category.id}`}
+                  onClick={onClose}
+                  className="flex items-center justify-between border-b border-neutral-200 py-5 text-3xl font-light tracking-tight transition-opacity hover:opacity-50"
+                >
+                  <span>{category.name}</span>
+
+                  <span className="text-xs text-neutral-400">
+                    {String(index + 2).padStart(2, "0")}
+                  </span>
+                </Link>
+              ))}
         </div>
 
         {/* Account */}

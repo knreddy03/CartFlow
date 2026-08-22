@@ -12,7 +12,7 @@ function NavLinks({ transparent = false }: NavLinksProps) {
   const linkClass = (isActive: boolean) =>
     `relative py-2 text-xs font-medium uppercase tracking-[0.16em] transition-colors duration-300 ${
       transparent
-        ? "text-white/80 hover:text-white"
+        ? "text-white/85 hover:text-white"
         : "text-neutral-600 hover:text-neutral-950"
     } ${isActive ? (transparent ? "text-white" : "text-neutral-950") : ""}`;
 
@@ -22,12 +22,11 @@ function NavLinks({ transparent = false }: NavLinksProps) {
       <NavLink to="/" className={({ isActive }) => linkClass(isActive)}>
         {({ isActive }) => (
           <>
-            Home
-            <span
-              className={`absolute bottom-0 left-0 h-px bg-current transition-all duration-300 ${
-                isActive ? "w-full" : "w-0"
-              }`}
-            />
+            <span>Home</span>
+
+            {isActive && (
+              <span className="absolute -bottom-1 left-0 h-px w-full bg-current" />
+            )}
           </>
         )}
       </NavLink>
@@ -45,13 +44,11 @@ function NavLinks({ transparent = false }: NavLinksProps) {
             >
               {({ isActive }) => (
                 <>
-                  {category.name}
+                  <span>{category.name}</span>
 
-                  <span
-                    className={`absolute bottom-0 left-0 h-px bg-current transition-all duration-300 ${
-                      isActive ? "w-full" : "w-0"
-                    }`}
-                  />
+                  {isActive && (
+                    <span className="absolute -bottom-1 left-0 h-px w-full bg-current" />
+                  )}
                 </>
               )}
             </NavLink>
