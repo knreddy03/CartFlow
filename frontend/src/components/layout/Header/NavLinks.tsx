@@ -18,19 +18,20 @@ function NavLinks({ transparent = false }: NavLinksProps) {
 
   return (
     <nav aria-label="Main navigation" className="flex items-center gap-8">
+      {/* Home */}
       <NavLink to="/" className={({ isActive }) => linkClass(isActive)}>
         {({ isActive }) => (
           <>
-            Home
-            <span
-              className={`absolute bottom-0 left-0 h-px bg-current transition-all duration-300 ${
-                isActive ? "w-full" : "w-0"
-              }`}
-            />
+            <span>Home</span>
+
+            {isActive && (
+              <span className="absolute -bottom-1 left-0 h-px w-full bg-current" />
+            )}
           </>
         )}
       </NavLink>
 
+      {/* Categories */}
       {!isLoading &&
         !isError &&
         categories
@@ -43,13 +44,11 @@ function NavLinks({ transparent = false }: NavLinksProps) {
             >
               {({ isActive }) => (
                 <>
-                  {category.name}
+                  <span>{category.name}</span>
 
-                  <span
-                    className={`absolute bottom-0 left-0 h-px bg-current transition-all duration-300 ${
-                      isActive ? "w-full" : "w-0"
-                    }`}
-                  />
+                  {isActive && (
+                    <span className="absolute -bottom-1 left-0 h-px w-full bg-current" />
+                  )}
                 </>
               )}
             </NavLink>

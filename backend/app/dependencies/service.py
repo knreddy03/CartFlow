@@ -9,6 +9,7 @@ from app.services.refresh_token_service import RefreshTokenService
 from app.services.email_verification_service import EmailVerificationService
 from app.services.category_service import CategoryService
 from app.services.product_service import ProductService
+from app.services.product_variant_service import ProductVariantService
 from app.services.cart_service import CartService
 from app.services.sub_category_service import SubCategoryService
 
@@ -54,6 +55,12 @@ def get_product_service(
     db: Session = Depends(get_db),
 ) -> ProductService:
     return ProductService(db)
+
+
+def get_product_variant_service(
+    db: Session = Depends(get_db),
+) -> ProductVariantService:
+    return ProductVariantService(db)
 
 
 def get_cart_service(

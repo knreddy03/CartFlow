@@ -30,7 +30,7 @@ function Header({ variant = "transparent" }: HeaderProps) {
         }
       >
         <div className="mx-auto flex h-16 max-w-[1600px] items-center justify-between px-5 sm:px-8 lg:px-12">
-          {/* Mobile Menu */}
+          {/* Mobile Menu Button */}
           <button
             ref={mobileMenuButtonRef}
             type="button"

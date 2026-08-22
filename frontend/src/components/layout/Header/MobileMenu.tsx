@@ -26,7 +26,7 @@ function MobileMenu({ open, onClose, triggerRef }: MobileMenuProps) {
       if (hasOpenedRef.current) {
         triggerRef.current?.focus();
       }
-
+      closeButtonRef.current?.focus();
       return;
     }
 
