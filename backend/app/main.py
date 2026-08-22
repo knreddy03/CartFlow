@@ -6,6 +6,7 @@ from app.api.v1.auth import router as auth_router
 from app.api.v1.category import router as category_router
 from app.api.v1.sub_category import router as sub_category_router
 from app.api.v1.product import router as product_router
+from app.api.v1.product_variant import router as product_variant_router
 from app.api.v1.cart import router as cart_router
 
 from app.core.exception_handlers import (
@@ -19,6 +20,8 @@ from app.core.exception_handlers import (
     product_not_found_handler,
     product_already_exists_handler,
     min_price_greater_than_max_price_handler,
+    product_variant_not_found_handler,
+    product_variant_already_exists_handler,
     cart_not_found_handler,
     cart_item_not_found_handler,
     product_out_of_stock_handler,
@@ -45,6 +48,11 @@ from app.exceptions.product_exceptions import (
     ProductNotFoundError,
     ProductAlreadyExistsError,
     MinPriceGreaterThanMaxPriceError,
+)
+
+from app.exceptions.product_variant_exceptions import (
+    ProductVariantNotFoundError,
+    ProductVariantAlreadyExistsError,
 )
 
 from app.exceptions.cart_exceptions import (
@@ -122,6 +130,16 @@ app.add_exception_handler(
 )
 
 app.add_exception_handler(
+    ProductVariantNotFoundError,
+    product_variant_not_found_handler,
+)
+
+app.add_exception_handler(
+    ProductVariantAlreadyExistsError,
+    product_variant_already_exists_handler,
+)
+
+app.add_exception_handler(
     CartNotFoundError,
     cart_not_found_handler,
 )
@@ -147,6 +165,7 @@ app.include_router(user_router)
 app.include_router(category_router)
 app.include_router(sub_category_router)
 app.include_router(product_router)
+app.include_router(product_variant_router)
 app.include_router(cart_router)
 
 

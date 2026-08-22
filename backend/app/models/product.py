@@ -10,8 +10,14 @@ class Product(BaseModel):
     __tablename__ = "products"
 
     __table_args__ = (
-        CheckConstraint("price >= 0", name="ck_products_price_non_negative"),
-        CheckConstraint("stock_quantity >= 0",name="ck_products_stock_non_negative",),
+        CheckConstraint(
+            "price >= 0", 
+            name="ck_products_price_non_negative"
+        ),
+        CheckConstraint(
+            "stock_quantity >= 0",
+            name="ck_products_stock_non_negative"
+        ),
     )
 
     sub_category_id: Mapped[UUID] = mapped_column(ForeignKey("sub_categories.id"), index=True, nullable=False, )
@@ -25,6 +31,7 @@ class Product(BaseModel):
     image_url: Mapped[str] = mapped_column(String(255), nullable=False, )
     is_active: Mapped[bool] = mapped_column(Boolean, default=True, nullable=False, )
 
-    sub_category = relationship("SubCategory", back_populates="products")
-    cart_items = relationship("CartItem",back_populates="product",)
+    sub_category = relationship("SubCategory", back_populates="products", )
+    cart_items = relationship("CartItem", back_populates="product", )
+    variants = relationship("ProductVariant", back_populates="product", cascade="all, delete-orphan", )
     
