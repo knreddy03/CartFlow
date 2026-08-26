@@ -2,7 +2,7 @@ from uuid import UUID
 from sqlalchemy import func, select
 from sqlalchemy.orm import Session
 from app.models.product import Product
-
+from app.models.sub_category import SubCategory
 
 class ProductRepository:
 
@@ -25,6 +25,7 @@ class ProductRepository:
 
     def get_products(
         self,
+        category_id: UUID | None = None,
         sub_category_id: UUID | None = None,
         is_active: bool | None = None,
         min_price: int | None = None,
@@ -35,6 +36,20 @@ class ProductRepository:
 
         stmt = select(Product)
         count_stmt = select(func.count()).select_from(Product)
+
+        if category_id is not None:
+            category_filter = (
+                Product.sub_category_id == SubCategory.id,
+                SubCategory.category_id == category_id,
+            )
+
+            stmt = stmt.join(SubCategory).where(*category_filter)
+
+            count_stmt = (
+                count_stmt
+                .join(SubCategory)
+                .where(*category_filter)
+            )
 
         if sub_category_id is not None:
             stmt = stmt.where(

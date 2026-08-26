@@ -22,6 +22,7 @@ export interface ProductListResponse {
 }
 
 export interface ProductFilters {
+  category_id?: string;
   sub_category_id?: string;
   is_active?: boolean;
   min_price?: number;

@@ -47,29 +47,7 @@ function ProductListingPage() {
 
   return (
     <main className="min-h-screen bg-[#f8f7f4]">
-      <section className="px-5 pb-12 pt-24 sm:px-8 lg:px-12 lg:pb-16 lg:pt-32">
-        <div className="mx-auto max-w-[1600px]">
-          <p className="mb-4 text-xs font-medium uppercase tracking-[0.3em] text-neutral-500">
-            Collection
-          </p>
-
-          <div className="flex items-end justify-between gap-6">
-            <div>
-              <h1 className="text-5xl font-light tracking-tight sm:text-6xl">
-                Products
-              </h1>
-
-              <p className="mt-4 text-sm text-neutral-500">
-                Explore this collection.
-              </p>
-            </div>
-
-            <p className="hidden text-sm text-neutral-500 sm:block">
-              {data.total} products
-            </p>
-          </div>
-        </div>
-      </section>
+      <section className="px-5 pb-12 pt-24 sm:px-8 lg:px-12 lg:pb-16 lg:pt-32"></section>
 
       <section className="px-5 pb-24 sm:px-8 lg:px-12 lg:pb-32">
         <div className="mx-auto max-w-[1600px]">
