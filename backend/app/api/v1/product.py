@@ -38,6 +38,10 @@ def create_product(
     response_model=ProductListResponse,
 )
 def get_products(
+    category_id: UUID | None = Query(
+        default=None,
+        description="Filter products by category ID",
+    ),
     sub_category_id: UUID | None = Query(
         default=None,
         description="Filter products by sub-category ID",
@@ -73,6 +77,7 @@ def get_products(
     Get products with optional filtering and pagination.
     """
     return product_service.get_products(
+        category_id=category_id,
         sub_category_id=sub_category_id,
         is_active=is_active,
         min_price=min_price,

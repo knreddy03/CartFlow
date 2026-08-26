@@ -1,12 +1,19 @@
+import { useState } from "react";
 import { useParams } from "react-router-dom";
 
 import { useCategories } from "../hooks/useCategories";
 import { useSubCategories } from "../../sub_category/hooks/useSubCategories";
-import SubCategoryCard from "../../sub_category/components/SubCategoryCard";
 import SubCategoryNav from "../../sub_category/components/SubCategoryNav";
+
+import { useProducts } from "../../product/hooks/useProducts";
+import ProductGrid from "../../product/components/ProductGrid";
 
 function CategoryPage() {
   const { categoryId } = useParams<{ categoryId: string }>();
+
+  const [selectedSubCategoryId, setSelectedSubCategoryId] = useState<
+    string | null
+  >(null);
 
   const {
     data: categories = [],
@@ -20,11 +27,27 @@ function CategoryPage() {
     isError: subCategoriesError,
   } = useSubCategories(categoryId ?? "");
 
+  const {
+    data: productsData,
+    isLoading: productsLoading,
+    isError: productsError,
+  } = useProducts(
+    selectedSubCategoryId
+      ? {
+          sub_category_id: selectedSubCategoryId,
+          is_active: true,
+        }
+      : {
+          category_id: categoryId,
+          is_active: true,
+        },
+  );
+
   if (!categoryId) {
     return <p>Category not found.</p>;
   }
 
-  if (categoriesLoading || subCategoriesLoading) {
+  if (categoriesLoading || subCategoriesLoading || productsLoading) {
     return (
       <main className="min-h-screen bg-[#f8f7f4] px-5 py-24 sm:px-8 lg:px-12">
         <div className="mx-auto max-w-[1600px]">
@@ -34,7 +57,7 @@ function CategoryPage() {
     );
   }
 
-  if (categoriesError || subCategoriesError) {
+  if (categoriesError || subCategoriesError || productsError) {
     return (
       <main className="min-h-screen bg-[#f8f7f4] px-5 py-24 sm:px-8 lg:px-12">
         <div className="mx-auto max-w-[1600px]">
@@ -67,52 +90,56 @@ function CategoryPage() {
       {/* Category Header */}
       <section className="px-5 pb-10 pt-24 sm:px-8 lg:px-12 lg:pb-12 lg:pt-32">
         <div className="mx-auto max-w-[1600px]">
-          <p className="mb-4 text-xs font-medium uppercase tracking-[0.3em] text-neutral-500">
+          <p className="text-xs font-medium uppercase tracking-[0.3em] text-neutral-500">
             Collection
           </p>
 
-          <h1 className="text-5xl font-light tracking-tight sm:text-6xl lg:text-7xl">
+          <h1 className="mt-3 text-4xl font-light tracking-tight sm:text-5xl">
             {category.name}
           </h1>
 
           {category.description && (
-            <p className="mt-5 max-w-xl text-sm leading-relaxed text-neutral-500">
+            <p className="mt-4 max-w-2xl text-sm leading-relaxed text-neutral-500">
               {category.description}
             </p>
           )}
         </div>
       </section>
 
-      {/* Subcategory Navigation */}
-      <SubCategoryNav subCategories={activeSubCategories} />
+      {/* Product Filter Navigation */}
+      <SubCategoryNav
+        subCategories={activeSubCategories}
+        selectedSubCategoryId={selectedSubCategoryId}
+        onSelect={setSelectedSubCategoryId}
+      />
 
-      {/* Subcategory Cards */}
+      {/* Products */}
       <section className="px-5 pb-24 pt-16 sm:px-8 lg:px-12 lg:pb-32">
         <div className="mx-auto max-w-[1600px]">
-          <div className="mb-10">
-            <p className="text-xs font-medium uppercase tracking-[0.3em] text-neutral-500">
-              Explore
-            </p>
+          <div className="mb-10 flex items-end justify-between gap-4">
+            <div>
+              <p className="text-xs font-medium uppercase tracking-[0.3em] text-neutral-500">
+                {selectedSubCategoryId ? "Collection" : category.name}
+              </p>
 
-            <h2 className="mt-3 text-3xl font-light tracking-tight sm:text-4xl">
-              Shop by category
-            </h2>
+              <h2 className="mt-3 text-3xl font-light tracking-tight sm:text-4xl">
+                {selectedSubCategoryId
+                  ? subCategories.find(
+                      (subCategory) => subCategory.id === selectedSubCategoryId,
+                    )?.name
+                  : "All products"}
+              </h2>
+            </div>
+
+            {productsData && (
+              <p className="text-sm text-neutral-500">
+                {productsData.total}{" "}
+                {productsData.total === 1 ? "product" : "products"}
+              </p>
+            )}
           </div>
 
-          {activeSubCategories.length === 0 ? (
-            <p className="text-sm text-neutral-500">
-              No collections available.
-            </p>
-          ) : (
-            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-              {activeSubCategories.map((subCategory) => (
-                <SubCategoryCard
-                  key={subCategory.id}
-                  subCategory={subCategory}
-                />
-              ))}
-            </div>
-          )}
+          <ProductGrid products={productsData?.items ?? []} />
         </div>
       </section>
     </main>

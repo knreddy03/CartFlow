@@ -164,6 +164,67 @@ def test_get_products(client, db_session):
     assert product["is_active"] is True
 
 
+def test_get_products_filter_by_category(client, db_session):
+    category, shirts = create_category_and_sub_category(
+        db_session,
+        category_name="Men",
+        category_slug="men",
+        sub_category_name="Shirts",
+        sub_category_slug="shirts",
+    )
+
+    pants = SubCategory(
+        category_id=category.id,
+        name="Pants",
+        slug="pants",
+        description="Pants for Men",
+        image_url="https://example.com/images/pants.jpg",
+        is_active=True,
+    )
+
+    db_session.add(pants)
+    db_session.commit()
+    db_session.refresh(pants)
+
+    shirt_response = create_product(
+        client,
+        shirts.id,
+        "Men's Shirt",
+        "mens-shirt",
+    )
+
+    pants_response = create_product(
+        client,
+        pants.id,
+        "Men's Pants",
+        "mens-pants",
+    )
+
+    assert shirt_response.status_code == 201
+    assert pants_response.status_code == 201
+
+    response = client.get(
+        f"/products?category_id={category.id}"
+    )
+
+    assert response.status_code == 200
+
+    data = response.json()
+
+    assert data["total"] == 2
+    assert len(data["items"]) == 2
+
+    product_names = {
+        product["name"]
+        for product in data["items"]
+    }
+
+    assert product_names == {
+        "Men's Shirt",
+        "Men's Pants",
+    }
+
+
 def test_get_products_filter_by_sub_category(client, db_session):
     _, shirts = create_category_and_sub_category(
         db_session,

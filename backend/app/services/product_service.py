@@ -3,6 +3,7 @@ from uuid import UUID
 
 from sqlalchemy.orm import Session
 
+from app.exceptions.category_exceptions import CategoryNotFoundError
 from app.exceptions.sub_category_exceptions import SubCategoryNotFoundError
 from app.exceptions.product_exceptions import (
     ProductAlreadyExistsError,
@@ -10,8 +11,11 @@ from app.exceptions.product_exceptions import (
     MinPriceGreaterThanMaxPriceError,
 )
 from app.models.product import Product
-from app.repositories.product_repository import ProductRepository
+
+from app.repositories.category_repository import CategoryRepository
 from app.repositories.sub_category_repository import SubCategoryRepository
+from app.repositories.product_repository import ProductRepository
+
 from app.schemas.product_schema import (
     ProductCreate,
     ProductListResponse,
@@ -23,8 +27,9 @@ class ProductService:
 
     def __init__(self, db: Session):
         self.db = db
-        self.product_repository = ProductRepository(db)
+        self.category_repository = CategoryRepository(db)
         self.sub_category_repository = SubCategoryRepository(db)
+        self.product_repository = ProductRepository(db)
 
     def create_product(self, product_data: ProductCreate) -> Product:
 
@@ -90,6 +95,7 @@ class ProductService:
 
     def get_products(
         self,
+        category_id: UUID | None = None,
         sub_category_id: UUID | None = None,
         is_active: bool | None = None,
         min_price: int | None = None,
@@ -104,10 +110,16 @@ class ProductService:
                     "min_price cannot be greater than max_price."
                 )
 
+        if category_id is not None:
+            category = self.category_repository.get_by_id(category_id)
+
+            if category is None:
+                raise CategoryNotFoundError(
+                    "Category not found."
+                )
+        
         if sub_category_id is not None:
-            sub_category = self.sub_category_repository.get_by_id(
-                sub_category_id
-            )
+            sub_category = self.sub_category_repository.get_by_id(sub_category_id)
 
             if sub_category is None:
                 raise SubCategoryNotFoundError(
@@ -117,6 +129,7 @@ class ProductService:
         offset = (page - 1) * page_size
 
         products, total = self.product_repository.get_products(
+            category_id=category_id,
             sub_category_id=sub_category_id,
             is_active=is_active,
             min_price=min_price,
