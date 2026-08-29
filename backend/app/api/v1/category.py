@@ -2,6 +2,7 @@ from uuid import UUID
 
 from fastapi import APIRouter, Depends, Response, status
 
+from app.dependencies.user import require_admin
 from app.dependencies.service import get_category_service
 from app.schemas.category_schema import (
     CategoryCreate,
@@ -21,6 +22,7 @@ router = APIRouter(
     "",
     response_model=CategoryResponse,
     status_code=status.HTTP_201_CREATED,
+    dependencies=[Depends(require_admin)],
 )
 def create_category(
     category_data: CategoryCreate,
@@ -62,6 +64,7 @@ def get_category(
 @router.patch(
     "/{category_id}",
     response_model=CategoryResponse,
+    dependencies=[Depends(require_admin)],
 )
 def update_category(
     category_id: UUID,
@@ -77,6 +80,7 @@ def update_category(
 @router.delete(
     "/{category_id}",
     status_code=status.HTTP_204_NO_CONTENT,
+    dependencies=[Depends(require_admin)],
 )
 def delete_category(
     category_id: UUID,

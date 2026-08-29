@@ -41,7 +41,7 @@ def create_category_and_sub_category(
 
 
 def create_product(
-    client,
+    admin_client,
     sub_category_id,
     name,
     slug,
@@ -49,7 +49,7 @@ def create_product(
     stock_quantity=25,
     is_active=True,
 ):
-    return client.post(
+    return admin_client.post(
         "/products",
         json={
             "sub_category_id": str(sub_category_id),
@@ -65,7 +65,7 @@ def create_product(
     )
 
 
-def test_create_product(client, db_session):
+def test_create_product(admin_client, db_session):
     category, sub_category = create_category_and_sub_category(
         db_session,
         category_name="Men",
@@ -74,7 +74,7 @@ def test_create_product(client, db_session):
         sub_category_slug="shirts",
     )
 
-    response = client.post(
+    response = admin_client.post(
         "/products",
         json={
             "sub_category_id": str(sub_category.id),
@@ -117,7 +117,7 @@ def test_create_product(client, db_session):
     assert product.stock_quantity == 25
 
 
-def test_get_products(client, db_session):
+def test_get_products(admin_client, client, db_session):
     category, sub_category = create_category_and_sub_category(
         db_session,
         category_name="Women",
@@ -127,7 +127,7 @@ def test_get_products(client, db_session):
     )
 
     create_response = create_product(
-        client,
+        admin_client,
         sub_category.id,
         "Women's Dress",
         "womens-dress",
@@ -164,7 +164,7 @@ def test_get_products(client, db_session):
     assert product["is_active"] is True
 
 
-def test_get_products_filter_by_category(client, db_session):
+def test_get_products_filter_by_category(admin_client, client, db_session):
     category, shirts = create_category_and_sub_category(
         db_session,
         category_name="Men",
@@ -187,14 +187,14 @@ def test_get_products_filter_by_category(client, db_session):
     db_session.refresh(pants)
 
     shirt_response = create_product(
-        client,
+        admin_client,
         shirts.id,
         "Men's Shirt",
         "mens-shirt",
     )
 
     pants_response = create_product(
-        client,
+        admin_client,
         pants.id,
         "Men's Pants",
         "mens-pants",
@@ -225,7 +225,7 @@ def test_get_products_filter_by_category(client, db_session):
     }
 
 
-def test_get_products_filter_by_sub_category(client, db_session):
+def test_get_products_filter_by_sub_category(admin_client, client, db_session):
     _, shirts = create_category_and_sub_category(
         db_session,
         category_name="Men",
@@ -243,14 +243,14 @@ def test_get_products_filter_by_sub_category(client, db_session):
     )
 
     assert create_product(
-        client,
+        admin_client,
         shirts.id,
         "Men's Shirt",
         "mens-shirt",
     ).status_code == 201
 
     assert create_product(
-        client,
+        admin_client,
         pants.id,
         "Women's Pants",
         "womens-pants",
@@ -270,7 +270,7 @@ def test_get_products_filter_by_sub_category(client, db_session):
     assert data["items"][0]["sub_category_id"] == str(shirts.id)
 
 
-def test_get_products_filter_by_active_status(client, db_session):
+def test_get_products_filter_by_active_status(admin_client, client, db_session):
     _, sub_category = create_category_and_sub_category(
         db_session,
         category_name="Men",
@@ -280,7 +280,7 @@ def test_get_products_filter_by_active_status(client, db_session):
     )
 
     assert create_product(
-        client,
+        admin_client,
         sub_category.id,
         "Active Shirt",
         "active-shirt",
@@ -288,7 +288,7 @@ def test_get_products_filter_by_active_status(client, db_session):
     ).status_code == 201
 
     assert create_product(
-        client,
+        admin_client,
         sub_category.id,
         "Inactive Shirt",
         "inactive-shirt",
@@ -307,7 +307,7 @@ def test_get_products_filter_by_active_status(client, db_session):
     assert data["items"][0]["is_active"] is True
 
 
-def test_get_products_filter_by_min_price(client, db_session):
+def test_get_products_filter_by_min_price(admin_client, client, db_session):
     _, sub_category = create_category_and_sub_category(
         db_session,
         category_name="Men",
@@ -317,7 +317,7 @@ def test_get_products_filter_by_min_price(client, db_session):
     )
 
     assert create_product(
-        client,
+        admin_client,
         sub_category.id,
         "Cheap Shirt",
         "cheap-shirt",
@@ -325,7 +325,7 @@ def test_get_products_filter_by_min_price(client, db_session):
     ).status_code == 201
 
     assert create_product(
-        client,
+        admin_client,
         sub_category.id,
         "Expensive Shirt",
         "expensive-shirt",
@@ -343,7 +343,7 @@ def test_get_products_filter_by_min_price(client, db_session):
     assert data["items"][0]["name"] == "Expensive Shirt"
 
 
-def test_get_products_filter_by_max_price(client, db_session):
+def test_get_products_filter_by_max_price(admin_client, client, db_session):
     _, sub_category = create_category_and_sub_category(
         db_session,
         category_name="Men",
@@ -353,7 +353,7 @@ def test_get_products_filter_by_max_price(client, db_session):
     )
 
     assert create_product(
-        client,
+        admin_client,
         sub_category.id,
         "Cheap Shirt",
         "cheap-shirt",
@@ -361,7 +361,7 @@ def test_get_products_filter_by_max_price(client, db_session):
     ).status_code == 201
 
     assert create_product(
-        client,
+        admin_client,
         sub_category.id,
         "Expensive Shirt",
         "expensive-shirt",
@@ -379,7 +379,7 @@ def test_get_products_filter_by_max_price(client, db_session):
     assert data["items"][0]["name"] == "Cheap Shirt"
 
 
-def test_get_products_filter_by_price_range(client, db_session):
+def test_get_products_filter_by_price_range(admin_client, client, db_session):
     _, sub_category = create_category_and_sub_category(
         db_session,
         category_name="Men",
@@ -389,7 +389,7 @@ def test_get_products_filter_by_price_range(client, db_session):
     )
 
     assert create_product(
-        client,
+        admin_client,
         sub_category.id,
         "Cheap Shirt",
         "cheap-shirt",
@@ -397,7 +397,7 @@ def test_get_products_filter_by_price_range(client, db_session):
     ).status_code == 201
 
     assert create_product(
-        client,
+        admin_client,
         sub_category.id,
         "Medium Shirt",
         "medium-shirt",
@@ -405,7 +405,7 @@ def test_get_products_filter_by_price_range(client, db_session):
     ).status_code == 201
 
     assert create_product(
-        client,
+        admin_client,
         sub_category.id,
         "Expensive Shirt",
         "expensive-shirt",
@@ -425,7 +425,7 @@ def test_get_products_filter_by_price_range(client, db_session):
     assert data["items"][0]["name"] == "Medium Shirt"
 
 
-def test_get_products_with_combined_filters(client, db_session):
+def test_get_products_with_combined_filters(admin_client, client, db_session):
     _, shirts = create_category_and_sub_category(
         db_session,
         category_name="Men",
@@ -443,7 +443,7 @@ def test_get_products_with_combined_filters(client, db_session):
     )
 
     assert create_product(
-        client,
+        admin_client,
         shirts.id,
         "Active Shirt",
         "active-shirt",
@@ -452,7 +452,7 @@ def test_get_products_with_combined_filters(client, db_session):
     ).status_code == 201
 
     assert create_product(
-        client,
+        admin_client,
         shirts.id,
         "Inactive Shirt",
         "inactive-shirt",
@@ -461,7 +461,7 @@ def test_get_products_with_combined_filters(client, db_session):
     ).status_code == 201
 
     assert create_product(
-        client,
+        admin_client,
         pants.id,
         "Active Pants",
         "active-pants",
@@ -486,7 +486,7 @@ def test_get_products_with_combined_filters(client, db_session):
     assert data["items"][0]["name"] == "Active Shirt"
 
 
-def test_get_products_pagination(client, db_session):
+def test_get_products_pagination(admin_client, client, db_session):
     _, sub_category = create_category_and_sub_category(
         db_session,
         category_name="Men",
@@ -505,7 +505,7 @@ def test_get_products_pagination(client, db_session):
 
     for name, slug in products:
         response = create_product(
-            client,
+            admin_client,
             sub_category.id,
             name,
             slug,
@@ -530,7 +530,7 @@ def test_get_products_pagination(client, db_session):
     assert data["items"][1]["name"] == "Shirt B"
 
 
-def test_get_products_second_page(client, db_session):
+def test_get_products_second_page(admin_client, client, db_session):
     _, sub_category = create_category_and_sub_category(
         db_session,
         category_name="Men",
@@ -549,7 +549,7 @@ def test_get_products_second_page(client, db_session):
 
     for name, slug in products:
         response = create_product(
-            client,
+            admin_client,
             sub_category.id,
             name,
             slug,
@@ -574,7 +574,7 @@ def test_get_products_second_page(client, db_session):
     assert data["items"][1]["name"] == "Shirt D"
 
 
-def test_get_products_empty_result(client, db_session):
+def test_get_products_empty_result(admin_client, client, db_session):
     _, sub_category = create_category_and_sub_category(
         db_session,
         category_name="Men",
@@ -650,7 +650,7 @@ def test_get_products_invalid_sub_category(client):
     assert response.json()["detail"] == "Sub Category not found."
 
 
-def test_get_product_by_id(client, db_session):
+def test_get_product_by_id(admin_client, client, db_session):
     category, sub_category = create_category_and_sub_category(
         db_session,
         category_name="Kids",
@@ -660,7 +660,7 @@ def test_get_product_by_id(client, db_session):
     )
 
     create_response = create_product(
-        client,
+        admin_client,
         sub_category.id,
         "Kids T-Shirt",
         "kids-t-shirt",
@@ -701,7 +701,7 @@ def test_get_product_not_found(client):
     assert response.json()["detail"] == "Product not found."
 
 
-def test_update_product(client, db_session):
+def test_update_product(admin_client, db_session):
     category, sub_category = create_category_and_sub_category(
         db_session,
         category_name="Men",
@@ -711,7 +711,7 @@ def test_update_product(client, db_session):
     )
 
     create_response = create_product(
-        client,
+        admin_client,
         sub_category.id,
         "Men's Shirt",
         "mens-shirt",
@@ -723,7 +723,7 @@ def test_update_product(client, db_session):
 
     product_id = create_response.json()["id"]
 
-    response = client.patch(
+    response = admin_client.patch(
         f"/products/{product_id}",
         json={
             "name": "Men's Premium Shirt",
@@ -751,7 +751,7 @@ def test_update_product(client, db_session):
     assert data["is_active"] is True
 
 
-def test_create_duplicate_product(client, db_session):
+def test_create_duplicate_product(admin_client, db_session):
     category, sub_category = create_category_and_sub_category(
         db_session,
         category_name="Women",
@@ -772,14 +772,14 @@ def test_create_duplicate_product(client, db_session):
         "is_active": True,
     }
 
-    first_response = client.post(
+    first_response = admin_client.post(
         "/products",
         json=product_data,
     )
 
     assert first_response.status_code == 201
 
-    second_response = client.post(
+    second_response = admin_client.post(
         "/products",
         json=product_data,
     )
@@ -787,10 +787,10 @@ def test_create_duplicate_product(client, db_session):
     assert second_response.status_code == 409
 
 
-def test_update_product_not_found(client):
+def test_update_product_not_found(admin_client):
     product_id = uuid4()
 
-    response = client.patch(
+    response = admin_client.patch(
         f"/products/{product_id}",
         json={
             "name": "Updated Product",
@@ -800,7 +800,7 @@ def test_update_product_not_found(client):
     assert response.status_code == 404
 
 
-def test_delete_product(client, db_session):
+def test_delete_product(admin_client, db_session):
     category, sub_category = create_category_and_sub_category(
         db_session,
         category_name="Kids",
@@ -810,7 +810,7 @@ def test_delete_product(client, db_session):
     )
 
     create_response = create_product(
-        client,
+        admin_client,
         sub_category.id,
         "Kids T-Shirt",
         "kids-t-shirt",
@@ -822,24 +822,156 @@ def test_delete_product(client, db_session):
 
     product_id = create_response.json()["id"]
 
-    response = client.delete(
+    response = admin_client.delete(
         f"/products/{product_id}"
     )
 
     assert response.status_code == 204
 
-    get_response = client.get(
+    get_response = admin_client.get(
         f"/products/{product_id}"
     )
 
     assert get_response.status_code == 404
 
 
-def test_delete_product_not_found(client):
+def test_delete_product_not_found(admin_client):
     product_id = uuid4()
 
-    response = client.delete(
+    response = admin_client.delete(
         f"/products/{product_id}"
     )
 
     assert response.status_code == 404
+
+
+def test_customer_cannot_create_product(customer_client, db_session):
+    _, sub_category = create_category_and_sub_category(
+        db_session,
+    )
+
+    response = customer_client.post(
+        "/products",
+        json={
+            "sub_category_id": str(sub_category.id),
+            "name": "Test Product",
+            "slug": "test-product",
+            "description": "Test product",
+            "price": 1999,
+            "currency": "USD",
+            "stock_quantity": 10,
+            "image_url": "https://example.com/test.jpg",
+            "is_active": True,
+        },
+    )
+
+    assert response.status_code == 403
+    assert response.json()["detail"] == "Admin access required"
+
+
+def test_unauthenticated_cannot_create_product(client, db_session):
+    _, sub_category = create_category_and_sub_category(
+        db_session,
+    )
+
+    response = client.post(
+        "/products",
+        json={
+            "sub_category_id": str(sub_category.id),
+            "name": "Test Product",
+            "slug": "test-product",
+            "description": "Test product",
+            "price": 1999,
+            "currency": "USD",
+            "stock_quantity": 10,
+            "image_url": "https://example.com/test.jpg",
+            "is_active": True,
+        },
+    )
+
+    assert response.status_code == 401
+
+
+def test_customer_cannot_update_product(
+    customer_client,
+    db_session,
+):
+    _, sub_category = create_category_and_sub_category(
+        db_session,
+    )
+
+    product = Product(
+        sub_category_id=sub_category.id,
+        name="Test Product",
+        slug="test-product",
+        description="Test product description",
+        price=1999,
+        currency="USD",
+        stock_quantity=25,
+        image_url="https://example.com/test.jpg",
+        is_active=True,
+    )
+
+    db_session.add(product)
+    db_session.commit()
+    db_session.refresh(product)
+
+    response = customer_client.patch(
+        f"/products/{product.id}",
+        json={
+            "name": "Updated Product",
+        },
+    )
+
+    assert response.status_code == 403
+    assert response.json()["detail"] == "Admin access required"
+
+
+def test_customer_cannot_delete_product(
+    customer_client,
+    db_session,
+):
+    _, sub_category = create_category_and_sub_category(
+        db_session,
+    )
+
+    product = Product(
+        sub_category_id=sub_category.id,
+        name="Test Product",
+        slug="test-product",
+        description="Test product description",
+        price=1999,
+        currency="USD",
+        stock_quantity=25,
+        image_url="https://example.com/test.jpg",
+        is_active=True,
+    )
+
+    db_session.add(product)
+    db_session.commit()
+    db_session.refresh(product)
+
+    response = customer_client.delete(
+        f"/products/{product.id}"
+    )
+
+    assert response.status_code == 403
+    assert response.json()["detail"] == "Admin access required"
+
+
+def test_unauthenticated_cannot_update_product(
+    client,
+    db_session,
+):
+    _, sub_category = create_category_and_sub_category(
+        db_session,
+    )
+
+    response = client.patch(
+        f"/products/{uuid4()}",
+        json={
+            "name": "Updated Product",
+        },
+    )
+
+    assert response.status_code == 401

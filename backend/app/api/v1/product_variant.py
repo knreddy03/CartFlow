@@ -2,6 +2,7 @@ from uuid import UUID
 
 from fastapi import APIRouter, Depends, Response, status
 
+from app.dependencies.user import require_admin
 from app.dependencies.service import get_product_variant_service
 from app.schemas.product_variant_schema import (
     ProductVariantCreate,
@@ -21,6 +22,7 @@ router = APIRouter(
     "",
     response_model=ProductVariantResponse,
     status_code=status.HTTP_201_CREATED,
+    dependencies=[Depends(require_admin)],
 )
 def create_product_variant(
     product_id: UUID,
@@ -79,6 +81,7 @@ def get_product_variant(
 @router.patch(
     "/{variant_id}",
     response_model=ProductVariantResponse,
+    dependencies=[Depends(require_admin)],
 )
 def update_product_variant(
     product_id: UUID,
@@ -101,6 +104,7 @@ def update_product_variant(
 @router.delete(
     "/{variant_id}",
     status_code=status.HTTP_204_NO_CONTENT,
+    dependencies=[Depends(require_admin)],
 )
 def delete_product_variant(
     product_id: UUID,

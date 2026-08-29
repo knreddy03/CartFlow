@@ -1,4 +1,5 @@
 from pydantic import BaseModel, EmailStr, Field, ConfigDict
+from app.models.user import UserRole
 from datetime import date
 from uuid import UUID
 
@@ -10,6 +11,7 @@ class UserResponse(BaseModel):
     mobile: str
     email: EmailStr
     date_of_birth: date
+    role: UserRole
 
     model_config = ConfigDict(from_attributes=True)
 

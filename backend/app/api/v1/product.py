@@ -2,6 +2,7 @@ from uuid import UUID
 
 from fastapi import APIRouter, Depends, Query, Response, status
 
+from app.dependencies.user import require_admin
 from app.dependencies.service import get_product_service
 from app.schemas.product_schema import (
     ProductCreate,
@@ -10,6 +11,7 @@ from app.schemas.product_schema import (
     ProductUpdate,
 )
 from app.services.product_service import ProductService
+from app.models.user import User
 
 
 router = APIRouter(
@@ -22,6 +24,7 @@ router = APIRouter(
     "",
     response_model=ProductResponse,
     status_code=status.HTTP_201_CREATED,
+    dependencies=[Depends(require_admin)],
 )
 def create_product(
     product_data: ProductCreate,
@@ -109,6 +112,7 @@ def update_product(
     product_id: UUID,
     product_data: ProductUpdate,
     product_service: ProductService = Depends(get_product_service),
+     _: User = Depends(require_admin),
 ):
     """
     Update a product.
@@ -123,6 +127,7 @@ def update_product(
 def delete_product(
     product_id: UUID,
     product_service: ProductService = Depends(get_product_service),
+    _: User = Depends(require_admin),
 ):
     """
     Delete a product.

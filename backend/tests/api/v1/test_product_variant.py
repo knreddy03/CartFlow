@@ -5,7 +5,7 @@ from app.models.product_variant import ProductVariant
 from tests.api.v1.test_product import create_category_and_sub_category
 
 
-def create_product(client, db_session):
+def create_product(admin_client, db_session):
     _, sub_category = create_category_and_sub_category(
         db_session,
         category_name="Men",
@@ -14,7 +14,7 @@ def create_product(client, db_session):
         sub_category_slug="shirts",
     )
 
-    response = client.post(
+    response = admin_client.post(
         "/products",
         json={
             "sub_category_id": str(sub_category.id),
@@ -35,7 +35,7 @@ def create_product(client, db_session):
 
 
 def create_variant(
-    client,
+    admin_client,
     product_id,
     sku="SHIRT-BLK-M",
     size="M",
@@ -45,7 +45,7 @@ def create_variant(
     stock_quantity=10,
     is_active=True,
 ):
-    return client.post(
+    return admin_client.post(
         f"/products/{product_id}/variants",
         json={
             "sku": sku,
@@ -59,11 +59,11 @@ def create_variant(
     )
 
 
-def test_create_product_variant(client, db_session):
-    product = create_product(client, db_session)
+def test_create_product_variant(admin_client, db_session):
+    product = create_product(admin_client, db_session)
 
     response = create_variant(
-        client,
+        admin_client,
         product["id"],
     )
 
@@ -99,11 +99,11 @@ def test_create_product_variant(client, db_session):
     assert variant.stock_quantity == 10
 
 
-def test_create_product_variant_product_not_found(client):
+def test_create_product_variant_product_not_found(admin_client):
     product_id = uuid4()
 
     response = create_variant(
-        client,
+        admin_client,
         str(product_id),
     )
 
@@ -111,11 +111,11 @@ def test_create_product_variant_product_not_found(client):
     assert response.json()["detail"] == "Product not found."
 
 
-def test_create_duplicate_product_variant_sku(client, db_session):
-    product = create_product(client, db_session)
+def test_create_duplicate_product_variant_sku(admin_client, db_session):
+    product = create_product(admin_client, db_session)
 
     first_response = create_variant(
-        client,
+        admin_client,
         product["id"],
         sku="SHIRT-BLK-M",
     )
@@ -123,7 +123,7 @@ def test_create_duplicate_product_variant_sku(client, db_session):
     assert first_response.status_code == 201
 
     second_response = create_variant(
-        client,
+        admin_client,
         product["id"],
         sku="SHIRT-BLK-M",
     )
@@ -135,17 +135,17 @@ def test_create_duplicate_product_variant_sku(client, db_session):
     )
 
 
-def test_get_product_variants(client, db_session):
-    product = create_product(client, db_session)
+def test_get_product_variants(admin_client, client, db_session):
+    product = create_product(admin_client, db_session)
 
     first_response = create_variant(
-        client,
+        admin_client,
         product["id"],
         sku="SHIRT-BLK-M",
     )
 
     second_response = create_variant(
-        client,
+        admin_client,
         product["id"],
         sku="SHIRT-BLK-L",
     )
@@ -184,11 +184,11 @@ def test_get_product_variants_product_not_found(client):
     assert response.json()["detail"] == "Product not found."
 
 
-def test_get_product_variant_by_id(client, db_session):
-    product = create_product(client, db_session)
+def test_get_product_variant_by_id(admin_client, client, db_session):
+    product = create_product(admin_client, db_session)
 
     create_response = create_variant(
-        client,
+        admin_client,
         product["id"],
     )
 
@@ -212,8 +212,8 @@ def test_get_product_variant_by_id(client, db_session):
     assert data["material"] == "Cotton"
 
 
-def test_get_product_variant_not_found(client, db_session):
-    product = create_product(client, db_session)
+def test_get_product_variant_not_found(admin_client, client, db_session):
+    product = create_product(admin_client, db_session)
 
     variant_id = uuid4()
 
@@ -229,10 +229,11 @@ def test_get_product_variant_not_found(client, db_session):
 
 
 def test_product_variant_cannot_be_accessed_through_another_product(
+    admin_client,
     client,
     db_session,
 ):
-    product_one = create_product(client, db_session)
+    product_one = create_product(admin_client, db_session)
 
     # Create a second product with a different subcategory.
     _, sub_category_two = create_category_and_sub_category(
@@ -243,7 +244,7 @@ def test_product_variant_cannot_be_accessed_through_another_product(
         sub_category_slug="dresses",
     )
 
-    product_two_response = client.post(
+    product_two_response = admin_client.post(
         "/products",
         json={
             "sub_category_id": str(sub_category_two.id),
@@ -263,7 +264,7 @@ def test_product_variant_cannot_be_accessed_through_another_product(
     product_two = product_two_response.json()
 
     variant_response = create_variant(
-        client,
+        admin_client,
         product_two["id"],
         sku="DRESS-BLK-M",
     )
@@ -283,11 +284,11 @@ def test_product_variant_cannot_be_accessed_through_another_product(
     )
 
 
-def test_update_product_variant(client, db_session):
-    product = create_product(client, db_session)
+def test_update_product_variant(admin_client, db_session):
+    product = create_product(admin_client, db_session)
 
     create_response = create_variant(
-        client,
+        admin_client,
         product["id"],
     )
 
@@ -295,7 +296,7 @@ def test_update_product_variant(client, db_session):
 
     variant_id = create_response.json()["id"]
 
-    response = client.patch(
+    response = admin_client.patch(
         f"/products/{product['id']}/variants/{variant_id}",
         json={
             "sku": "SHIRT-BLK-L",
@@ -320,19 +321,19 @@ def test_update_product_variant(client, db_session):
 
 
 def test_update_product_variant_duplicate_sku(
-    client,
+    admin_client,
     db_session,
 ):
-    product = create_product(client, db_session)
+    product = create_product(admin_client, db_session)
 
     first_response = create_variant(
-        client,
+        admin_client,
         product["id"],
         sku="SHIRT-BLK-M",
     )
 
     second_response = create_variant(
-        client,
+        admin_client,
         product["id"],
         sku="SHIRT-BLK-L",
     )
@@ -342,7 +343,7 @@ def test_update_product_variant_duplicate_sku(
 
     second_variant_id = second_response.json()["id"]
 
-    response = client.patch(
+    response = admin_client.patch(
         f"/products/{product['id']}/variants/{second_variant_id}",
         json={
             "sku": "SHIRT-BLK-M",
@@ -356,11 +357,11 @@ def test_update_product_variant_duplicate_sku(
     )
 
 
-def test_delete_product_variant(client, db_session):
-    product = create_product(client, db_session)
+def test_delete_product_variant(admin_client, client, db_session):
+    product = create_product(admin_client, db_session)
 
     create_response = create_variant(
-        client,
+        admin_client,
         product["id"],
     )
 
@@ -368,7 +369,7 @@ def test_delete_product_variant(client, db_session):
 
     variant_id = create_response.json()["id"]
 
-    response = client.delete(
+    response = admin_client.delete(
         f"/products/{product['id']}/variants/{variant_id}"
     )
 
@@ -381,12 +382,12 @@ def test_delete_product_variant(client, db_session):
     assert get_response.status_code == 404
 
 
-def test_delete_product_variant_not_found(client, db_session):
-    product = create_product(client, db_session)
+def test_delete_product_variant_not_found(admin_client, db_session):
+    product = create_product(admin_client, db_session)
 
     variant_id = uuid4()
 
-    response = client.delete(
+    response = admin_client.delete(
         f"/products/{product['id']}/variants/{variant_id}"
     )
 
@@ -397,11 +398,11 @@ def test_delete_product_variant_not_found(client, db_session):
     )
 
 
-def test_create_product_variant_negative_price(client, db_session):
-    product = create_product(client, db_session)
+def test_create_product_variant_negative_price(admin_client, db_session):
+    product = create_product(admin_client, db_session)
 
     response = create_variant(
-        client,
+        admin_client,
         product["id"],
         price=-1,
     )
@@ -409,11 +410,11 @@ def test_create_product_variant_negative_price(client, db_session):
     assert response.status_code == 422
 
 
-def test_create_product_variant_negative_stock(client, db_session):
-    product = create_product(client, db_session)
+def test_create_product_variant_negative_stock(admin_client, db_session):
+    product = create_product(admin_client, db_session)
 
     response = create_variant(
-        client,
+        admin_client,
         product["id"],
         stock_quantity=-1,
     )
@@ -421,11 +422,11 @@ def test_create_product_variant_negative_stock(client, db_session):
     assert response.status_code == 422
 
 
-def test_create_product_variant_empty_size(client, db_session):
-    product = create_product(client, db_session)
+def test_create_product_variant_empty_size(admin_client, db_session):
+    product = create_product(admin_client, db_session)
 
     response = create_variant(
-        client,
+        admin_client,
         product["id"],
         size="",
     )
@@ -433,17 +434,17 @@ def test_create_product_variant_empty_size(client, db_session):
     assert response.status_code == 422
 
 
-def test_update_product_variant_negative_stock(client, db_session):
-    product = create_product(client, db_session)
+def test_update_product_variant_negative_stock(admin_client, db_session):
+    product = create_product(admin_client, db_session)
 
     create_response = create_variant(
-        client,
+        admin_client,
         product["id"],
     )
 
     variant_id = create_response.json()["id"]
 
-    response = client.patch(
+    response = admin_client.patch(
         f"/products/{product['id']}/variants/{variant_id}",
         json={
             "stock_quantity": -1,
@@ -451,3 +452,150 @@ def test_update_product_variant_negative_stock(client, db_session):
     )
 
     assert response.status_code == 422
+
+
+def test_customer_cannot_create_product_variant(
+    customer_client,
+    admin_client,
+    db_session,
+):
+    product = create_product(admin_client, db_session)
+
+    response = customer_client.post(
+        f"/products/{product['id']}/variants",
+        json={
+            "sku": "SHIRT-BLK-M",
+            "size": "M",
+            "color": "Black",
+            "material": "Cotton",
+            "price": 2499,
+            "stock_quantity": 10,
+            "is_active": True,
+        },
+    )
+
+    assert response.status_code == 403
+    assert response.json()["detail"] == "Admin access required"
+
+
+def test_customer_cannot_update_product_variant(
+    customer_client,
+    admin_client,
+    db_session,
+):
+    product = create_product(admin_client, db_session)
+
+    create_response = create_variant(
+        admin_client,
+        product["id"],
+    )
+
+    assert create_response.status_code == 201
+
+    variant_id = create_response.json()["id"]
+
+    response = customer_client.patch(
+        f"/products/{product['id']}/variants/{variant_id}",
+        json={
+            "size": "L",
+        },
+    )
+
+    assert response.status_code == 403
+    assert response.json()["detail"] == "Admin access required"
+
+
+def test_customer_cannot_delete_product_variant(
+    customer_client,
+    admin_client,
+    db_session,
+):
+    product = create_product(admin_client, db_session)
+
+    create_response = create_variant(
+        admin_client,
+        product["id"],
+    )
+
+    assert create_response.status_code == 201
+
+    variant_id = create_response.json()["id"]
+
+    response = customer_client.delete(
+        f"/products/{product['id']}/variants/{variant_id}"
+    )
+
+    assert response.status_code == 403
+    assert response.json()["detail"] == "Admin access required"
+
+
+def test_unauthenticated_cannot_create_product_variant(
+    admin_client,
+    client,
+    db_session,
+):
+    product = create_product(admin_client, db_session)
+
+    response = client.post(
+        f"/products/{product['id']}/variants",
+        json={
+            "sku": "SHIRT-BLK-M",
+            "size": "M",
+            "color": "Black",
+            "material": "Cotton",
+            "price": 2499,
+            "stock_quantity": 10,
+            "is_active": True,
+        },
+    )
+
+    assert response.status_code == 401
+
+
+def test_unauthenticated_cannot_update_product_variant(
+    client,
+    admin_client,
+    db_session,
+):
+    product = create_product(admin_client, db_session)
+
+    create_response = create_variant(
+        admin_client,
+        product["id"],
+    )
+
+    assert create_response.status_code == 201
+
+    variant_id = create_response.json()["id"]
+
+    response = client.patch(
+        f"/products/{product['id']}/variants/{variant_id}",
+        json={
+            "size": "L",
+        },
+    )
+
+    assert response.status_code == 401
+
+
+def test_unauthenticated_cannot_delete_product_variant(
+    client,
+    admin_client,
+    db_session,
+):
+    product = create_product(admin_client, db_session)
+
+    create_response = create_variant(
+        admin_client,
+        product["id"],
+    )
+
+    assert create_response.status_code == 201
+
+    variant_id = create_response.json()["id"]
+
+    response = client.delete(
+        f"/products/{product['id']}/variants/{variant_id}"
+    )
+
+    assert response.status_code == 401

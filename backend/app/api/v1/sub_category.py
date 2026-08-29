@@ -2,6 +2,7 @@ from uuid import UUID
 
 from fastapi import APIRouter, Depends, Response, status
 
+from app.dependencies.user import require_admin
 from app.dependencies.service import get_sub_category_service
 from app.schemas.sub_category_schema import (
     SubCategoryCreate,
@@ -21,6 +22,7 @@ router = APIRouter(
     "",
     response_model=SubCategoryResponse,
     status_code=status.HTTP_201_CREATED,
+    dependencies=[Depends(require_admin)],
 )
 def create_sub_category(
     sub_category_data: SubCategoryCreate,
@@ -90,6 +92,7 @@ def get_sub_category(
 @router.patch(
     "/{sub_category_id}",
     response_model=SubCategoryResponse,
+    dependencies=[Depends(require_admin)],
 )
 def update_sub_category(
     sub_category_id: UUID,
@@ -110,6 +113,7 @@ def update_sub_category(
 @router.delete(
     "/{sub_category_id}",
     status_code=status.HTTP_204_NO_CONTENT,
+    dependencies=[Depends(require_admin)],
 )
 def delete_sub_category(
     sub_category_id: UUID,

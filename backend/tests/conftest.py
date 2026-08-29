@@ -4,13 +4,14 @@ from sqlalchemy import create_engine, text
 from sqlalchemy.orm import sessionmaker
 
 from app.core.config import settings
+from app.core.auth import create_access_token
 from app.db.database import get_db
 from app.main import app
 
 from datetime import date
 
-from app.dependencies.user import get_current_user_id
-from app.models.user import User
+from app.dependencies.user import get_current_user, get_current_user_id
+from app.models.user import User, UserRole
 
 
 test_engine = create_engine(
@@ -45,7 +46,7 @@ def client(db_session):
     with TestClient(app) as test_client:
         yield test_client
 
-    app.dependency_overrides.clear()
+    app.dependency_overrides.pop(get_db, None)
 
 
 @pytest.fixture
@@ -57,6 +58,27 @@ def authenticated_user(db_session):
         email="test@example.com",
         password="hashed-password",
         date_of_birth=date(1995, 1, 1),
+        role=UserRole.CUSTOMER,
+        is_verified=True,
+    )
+
+    db_session.add(user)
+    db_session.commit()
+    db_session.refresh(user)
+
+    return user
+
+
+@pytest.fixture
+def admin_user(db_session):
+    user = User(
+        first_name="Admin",
+        last_name="User",
+        mobile="9876543210",
+        email="admin@example.com",
+        password="hashed-password",
+        date_of_birth=date(1990, 1, 1),
+        role=UserRole.ADMIN,
         is_verified=True,
     )
 
@@ -83,7 +105,45 @@ def authenticated_client(client, authenticated_user):
         None,
     )
 
-    
+
+@pytest.fixture
+def customer_client(db_session, authenticated_user):
+    def override_get_db():
+        yield db_session
+
+    app.dependency_overrides[get_db] = override_get_db
+
+    token = create_access_token(authenticated_user.id)
+
+    with TestClient(app) as test_client:
+        test_client.headers.update(
+            {"Authorization": f"Bearer {token}"}
+        )
+
+        yield test_client
+
+    app.dependency_overrides.pop(get_db, None)
+
+
+@pytest.fixture
+def admin_client(db_session, admin_user):
+    def override_get_db():
+        yield db_session
+
+    app.dependency_overrides[get_db] = override_get_db
+
+    token = create_access_token(admin_user.id)
+
+    with TestClient(app) as test_client:
+        test_client.headers.update(
+            {"Authorization": f"Bearer {token}"}
+        )
+
+        yield test_client
+
+    app.dependency_overrides.pop(get_db, None)
+
+
 @pytest.fixture(autouse=True)
 def clean_database():
     with test_engine.begin() as connection:

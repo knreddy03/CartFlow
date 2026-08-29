@@ -2,8 +2,8 @@ from app.models.category import Category
 from uuid import uuid4
 
 
-def test_create_category(client, db_session):
-    response = client.post(
+def test_create_category(admin_client, db_session):
+    response = admin_client.post(
         "/categories",
         json={
             "name": "Men",
@@ -34,18 +34,17 @@ def test_create_category(client, db_session):
 
 
 
-def test_get_categories(client):
-    create_response = client.post(
-        "/categories",
-        json={
-            "name": "Women",
-            "slug": "women",
-            "description": "Women's clothing and accessories",
-            "image_url": "https://example.com/images/women.jpg",
-        },
+def test_get_categories(client, db_session):
+    category = Category(
+        name="Women",
+        slug="women",
+        description="Women's clothing and accessories",
+        image_url="https://example.com/images/women.jpg",
     )
 
-    assert create_response.status_code == 201
+    db_session.add(category)
+    db_session.commit()
+    db_session.refresh(category)
 
     response = client.get("/categories")
 
@@ -60,29 +59,25 @@ def test_get_categories(client):
     assert data[0]["image_url"] == "https://example.com/images/women.jpg"
 
 
-def test_get_category_by_id(client):
-    create_response = client.post(
-        "/categories",
-        json={
-            "name": "Kids",
-            "slug": "kids",
-            "description": "Kids clothing and accessories",
-            "image_url": "https://example.com/images/kids.jpg",
-        },
+def test_get_category_by_id(client, db_session):
+    category = Category(
+        name="Kids",
+        slug="kids",
+        description="Kids clothing and accessories",
+        image_url="https://example.com/images/kids.jpg",
     )
 
-    assert create_response.status_code == 201
+    db_session.add(category)
+    db_session.commit()
+    db_session.refresh(category)
 
-    created_category = create_response.json()
-    category_id = created_category["id"]
-
-    response = client.get(f"/categories/{category_id}")
+    response = client.get(f"/categories/{category.id}")
 
     assert response.status_code == 200
 
     data = response.json()
 
-    assert data["id"] == category_id
+    assert data["id"] == str(category.id)
     assert data["name"] == "Kids"
     assert data["slug"] == "kids"
     assert data["description"] == "Kids clothing and accessories"
@@ -98,8 +93,8 @@ def test_get_category_not_found(client):
     assert response.json()["detail"] == "Category not found."
 
 
-def test_update_category(client):
-    create_response = client.post(
+def test_update_category(admin_client):
+    create_response = admin_client.post(
         "/categories",
         json={
             "name": "Men",
@@ -113,7 +108,7 @@ def test_update_category(client):
 
     category_id = create_response.json()["id"]
 
-    response = client.patch(
+    response = admin_client.patch(
         f"/categories/{category_id}",
         json={
             "name": "Men's Clothing",
@@ -132,7 +127,7 @@ def test_update_category(client):
     assert data["image_url"] == "https://example.com/images/men.jpg"
 
 
-def test_create_duplicate_category(client):
+def test_create_duplicate_category(admin_client):
     category_data = {
         "name": "Electronics",
         "slug": "electronics",
@@ -140,14 +135,14 @@ def test_create_duplicate_category(client):
         "image_url": "https://example.com/images/electronics.jpg",
     }
 
-    first_response = client.post(
+    first_response = admin_client.post(
         "/categories",
         json=category_data,
     )
 
     assert first_response.status_code == 201
 
-    second_response = client.post(
+    second_response = admin_client.post(
         "/categories",
         json=category_data,
     )
@@ -156,10 +151,10 @@ def test_create_duplicate_category(client):
 
 
 
-def test_update_category_not_found(client):
+def test_update_category_not_found(admin_client):
     category_id = uuid4()
 
-    response = client.patch(
+    response = admin_client.patch(
         f"/categories/{category_id}",
         json={
             "name": "Updated Category",
@@ -169,8 +164,8 @@ def test_update_category_not_found(client):
     assert response.status_code == 404
 
 
-def test_delete_category(client):
-    create_response = client.post(
+def test_delete_category(admin_client):
+    create_response = admin_client.post(
         "/categories",
         json={
             "name": "Books",
@@ -184,24 +179,149 @@ def test_delete_category(client):
 
     category_id = create_response.json()["id"]
 
-    response = client.delete(
+    response = admin_client.delete(
         f"/categories/{category_id}"
     )
 
     assert response.status_code == 204
 
-    get_response = client.get(
+    get_response = admin_client.get(
         f"/categories/{category_id}"
     )
 
     assert get_response.status_code == 404
 
 
-def test_delete_category_not_found(client):
+def test_delete_category_not_found(admin_client):
     category_id = uuid4()
 
-    response = client.delete(
+    response = admin_client.delete(
         f"/categories/{category_id}"
     )
 
     assert response.status_code == 404
+
+
+def test_customer_cannot_create_category(customer_client):
+    response = customer_client.post(
+        "/categories",
+        json={
+            "name": "Electronics",
+            "slug": "electronics",
+            "description": "Electronic products",
+            "image_url": "https://example.com/images/electronics.jpg",
+        },
+    )
+
+    assert response.status_code == 403
+    assert response.json()["detail"] == "Admin access required"
+
+
+def test_customer_cannot_update_category(
+    customer_client,
+    db_session,
+):
+    category = Category(
+        name="Electronics",
+        slug="electronics",
+        description="Electronic products",
+        image_url="https://example.com/images/electronics.jpg",
+    )
+
+    db_session.add(category)
+    db_session.commit()
+    db_session.refresh(category)
+
+    response = customer_client.patch(
+        f"/categories/{category.id}",
+        json={
+            "name": "Updated Electronics",
+        },
+    )
+
+    assert response.status_code == 403
+    assert response.json()["detail"] == "Admin access required"
+
+
+def test_customer_cannot_delete_category(
+    customer_client,
+    db_session,
+):
+    category = Category(
+        name="Electronics",
+        slug="electronics",
+        description="Electronic products",
+        image_url="https://example.com/images/electronics.jpg",
+    )
+
+    db_session.add(category)
+    db_session.commit()
+    db_session.refresh(category)
+
+    response = customer_client.delete(
+        f"/categories/{category.id}",
+    )
+
+    assert response.status_code == 403
+    assert response.json()["detail"] == "Admin access required"
+
+
+def test_unauthenticated_cannot_create_category(client):
+    response = client.post(
+        "/categories",
+        json={
+            "name": "Electronics",
+            "slug": "electronics",
+            "description": "Electronic products",
+            "image_url": "https://example.com/images/electronics.jpg",
+        },
+    )
+
+    assert response.status_code == 401
+
+
+def test_unauthenticated_cannot_update_category(
+    client,
+    db_session,
+):
+    category = Category(
+        name="Electronics",
+        slug="electronics",
+        description="Electronic products",
+        image_url="https://example.com/images/electronics.jpg",
+    )
+
+    db_session.add(category)
+    db_session.commit()
+    db_session.refresh(category)
+
+    response = client.patch(
+        f"/categories/{category.id}",
+        json={
+            "name": "Updated Electronics",
+        },
+    )
+
+    assert response.status_code == 401
+
+
+def test_unauthenticated_cannot_delete_category(
+    client,
+    db_session,
+):
+    category = Category(
+        name="Electronics",
+        slug="electronics",
+        description="Electronic products",
+        image_url="https://example.com/images/electronics.jpg",
+    )
+
+    db_session.add(category)
+    db_session.commit()
+    db_session.refresh(category)
+
+    response = client.delete(
+        f"/categories/{category.id}",
+    )
+
+    assert response.status_code == 401
