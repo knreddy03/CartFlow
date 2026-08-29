@@ -20,6 +20,9 @@ COPY pyproject.toml uv.lock ./
 # Install dependencies
 RUN uv sync --frozen --no-dev
 
+# Set PATH to include virtual environment
+ENV PATH="/app/.venv/bin:$PATH"
+
 # Copy the full project into /app
 COPY . .
 
@@ -27,4 +30,4 @@ COPY . .
 EXPOSE 8000
 
 # Default command to start app
-CMD ["uv", "run", "uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
+CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
