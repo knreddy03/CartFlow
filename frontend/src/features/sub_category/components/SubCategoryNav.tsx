@@ -18,17 +18,17 @@ function SubCategoryNav({
   return (
     <nav
       aria-label="Sub category navigation"
-      className="border-y border-neutral-200 bg-[#f8f7f4]"
+      className="sticky top-16 z-40 border-y border-gray-200 bg-white/95 backdrop-blur-md"
     >
-      <div className="mx-auto flex max-w-[1600px] gap-8 overflow-x-auto px-5 py-4 sm:px-8 lg:px-12">
+      <div className="mx-auto flex max-w-[1600px] gap-8 overflow-x-auto px-5 py-4 sm:px-8 lg:px-12 scrollbar-hide">
         {/* All */}
         <button
           type="button"
           onClick={() => onSelect(null)}
-          className={`whitespace-nowrap text-xs font-medium uppercase tracking-[0.16em] transition-colors ${
+          className={`relative whitespace-nowrap text-xs font-semibold uppercase tracking-[0.15em] transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gray-900 focus-visible:ring-offset-2 pb-2 ${
             selectedSubCategoryId === null
-              ? "text-neutral-950"
-              : "text-neutral-500 hover:text-neutral-950"
+              ? "text-gray-900 after:absolute after:bottom-0 after:left-0 after:h-1 after:w-full after:bg-gray-900"
+              : "text-gray-600 hover:text-gray-900 after:absolute after:bottom-0 after:left-0 after:h-1 after:w-0 after:bg-gray-900 after:transition-all after:duration-300 hover:after:w-full"
           }`}
         >
           All
@@ -40,10 +40,10 @@ function SubCategoryNav({
             key={subCategory.id}
             type="button"
             onClick={() => onSelect(subCategory.id)}
-            className={`whitespace-nowrap text-xs font-medium uppercase tracking-[0.16em] transition-colors ${
+            className={`relative whitespace-nowrap text-xs font-semibold uppercase tracking-[0.15em] transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gray-900 focus-visible:ring-offset-2 pb-2 ${
               selectedSubCategoryId === subCategory.id
-                ? "text-neutral-950"
-                : "text-neutral-500 hover:text-neutral-950"
+                ? "text-gray-900 after:absolute after:bottom-0 after:left-0 after:h-1 after:w-full after:bg-gray-900"
+                : "text-gray-600 hover:text-gray-900 after:absolute after:bottom-0 after:left-0 after:h-1 after:w-0 after:bg-gray-900 after:transition-all after:duration-300 hover:after:w-full"
             }`}
           >
             {subCategory.name}

@@ -19,7 +19,7 @@ export default function Input({
       {label && (
         <label
           htmlFor={id}
-          className="text-sm font-medium tracking-wide text-neutral-950"
+          className="text-xs font-semibold uppercase tracking-[0.08em] text-gray-900"
         >
           {label}
         </label>
@@ -32,16 +32,15 @@ export default function Input({
         className={[
           "min-h-11 w-full",
           "border bg-white px-4 py-3",
-          "text-sm text-neutral-950",
+          "text-sm text-gray-900",
           "outline-none",
-          "placeholder:text-neutral-400",
-          "transition-colors duration-200",
-          "focus-visible:ring-2 focus-visible:ring-neutral-950",
-          "focus-visible:ring-offset-1",
-          "disabled:cursor-not-allowed disabled:bg-neutral-100 disabled:text-neutral-500",
+          "placeholder:text-gray-400",
+          "transition-all duration-200",
+          "focus-visible:ring-2 focus-visible:ring-offset-1",
+          "disabled:cursor-not-allowed disabled:bg-gray-50 disabled:text-gray-500",
           error
             ? "border-red-500 focus:border-red-500 focus-visible:ring-red-500"
-            : "border-neutral-200 focus:border-neutral-950",
+            : "border-gray-300 hover:border-gray-400 focus:border-gray-900 focus-visible:ring-gray-900",
           className,
         ]
           .filter(Boolean)

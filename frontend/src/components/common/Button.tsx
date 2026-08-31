@@ -9,15 +9,15 @@ interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
 }
 
 const variants: Record<ButtonVariant, string> = {
-  primary: "bg-neutral-950 text-white hover:bg-neutral-800",
+  primary: "bg-gray-900 text-white hover:bg-gray-800 active:bg-gray-950",
 
   secondary:
-    "border border-neutral-200 bg-white text-neutral-950 hover:border-neutral-300 hover:bg-neutral-50",
+    "border border-gray-300 bg-white text-gray-900 hover:border-gray-400 hover:bg-gray-50",
 
   outline:
-    "border border-neutral-950 bg-transparent text-neutral-950 hover:bg-neutral-950 hover:text-white",
+    "border border-gray-900 bg-transparent text-gray-900 hover:bg-gray-900 hover:text-white",
 
-  ghost: "bg-transparent text-neutral-950 hover:bg-neutral-100",
+  ghost: "bg-transparent text-gray-900 hover:bg-gray-100",
 };
 
 export default function Button({
@@ -37,12 +37,12 @@ export default function Button({
       className={[
         "inline-flex items-center justify-center gap-2",
         "min-h-11 px-6 py-3",
-        "text-sm font-medium tracking-[0.08em]",
-        "transition-colors duration-200 ease-out",
+        "text-sm font-semibold tracking-[0.08em] uppercase",
+        "transition-all duration-200 ease-out",
         "focus-visible:outline-none",
-        "focus-visible:ring-2 focus-visible:ring-neutral-950",
+        "focus-visible:ring-2 focus-visible:ring-gray-900",
         "focus-visible:ring-offset-2",
-        "active:scale-[0.99]",
+        "active:scale-[0.98]",
         "disabled:pointer-events-none disabled:opacity-50",
         variants[variant],
         fullWidth ? "w-full" : "",

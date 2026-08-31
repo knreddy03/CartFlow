@@ -22,52 +22,44 @@ function Header({ variant = "transparent" }: HeaderProps) {
 
   return (
     <>
-      <header
-        className={
-          transparent
-            ? "absolute inset-x-0 top-0 z-50 w-full"
-            : "sticky top-0 z-50 w-full border-b border-neutral-200/80 bg-[#f8f7f4]/95 backdrop-blur-md"
-        }
-      >
-        <div className="mx-auto flex h-16 max-w-[1600px] items-center justify-between px-5 sm:px-8 lg:px-12">
+      <header className="fixed inset-x-0 top-0 z-50 w-full border-b border-gray-200 bg-white/95 shadow-sm backdrop-blur-md">
+        <div className="mx-auto grid h-16 max-w-[1600px] grid-cols-[1fr_auto_1fr] items-center px-5 sm:px-8 lg:px-12">
           {/* Mobile Menu Button */}
-          <button
-            ref={mobileMenuButtonRef}
-            type="button"
-            aria-label="Open menu"
-            aria-expanded={mobileMenuOpen}
-            aria-controls="mobile-navigation"
-            onClick={() => setMobileMenuOpen(true)}
-            className={`rounded-full p-2 transition-colors lg:hidden ${
-              transparent
-                ? "text-white hover:bg-white/10"
-                : "text-neutral-900 hover:bg-neutral-100"
-            }`}
-          >
-            <Menu className="h-5 w-5" />
-          </button>
+          <div className="flex items-center lg:hidden">
+            <button
+              ref={mobileMenuButtonRef}
+              type="button"
+              aria-label="Open menu"
+              aria-expanded={mobileMenuOpen}
+              aria-controls="mobile-navigation"
+              onClick={() => setMobileMenuOpen(true)}
+              className="rounded-full p-2 text-gray-900 transition-colors hover:bg-gray-100"
+            >
+              <Menu className="h-5 w-5" />
+            </button>
+          </div>
 
           {/* Logo */}
-          <div className="shrink-0 lg:absolute lg:left-12">
+          <div className="shrink-0 lg:justify-self-start">
             <Logo transparent={transparent} />
           </div>
 
           {/* Desktop Navigation */}
-          <div className="mx-auto hidden lg:block">
+          <div className="hidden lg:block lg:justify-self-center">
             <NavLinks transparent={transparent} />
           </div>
 
           {/* Actions */}
-          <div className="ml-auto flex items-center gap-1 sm:gap-2">
-            <SearchButton transparent={transparent} />
+          <div className="flex items-center justify-self-end gap-1 sm:gap-2">
+            <SearchButton transparent={false} />
 
-            <WishlistButton transparent={transparent} />
+            <WishlistButton transparent={false} />
 
             <div className="hidden lg:block">
-              <ProfileMenu transparent={transparent} />
+              <ProfileMenu transparent={false} />
             </div>
 
-            <CartButton transparent={transparent} />
+            <CartButton transparent={false} />
           </div>
         </div>
       </header>

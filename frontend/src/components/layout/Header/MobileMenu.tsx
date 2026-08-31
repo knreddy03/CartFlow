@@ -67,14 +67,14 @@ function MobileMenu({ open, onClose, triggerRef }: MobileMenuProps) {
       role="dialog"
       aria-modal="true"
       aria-label="Mobile navigation"
-      className="fixed inset-0 z-[60] bg-[#f8f7f4] lg:hidden"
+      className="fixed inset-0 z-[60] bg-white lg:hidden"
     >
       {/* Header */}
-      <div className="flex h-16 items-center justify-between border-b border-neutral-200 px-5 sm:px-8">
+      <div className="flex h-16 items-center justify-between border-b border-gray-200 px-5 sm:px-8">
         <Link
           to="/"
           onClick={onClose}
-          className="text-xl font-semibold uppercase tracking-[0.18em]"
+          className="text-lg font-semibold uppercase tracking-[0.2em] text-gray-900"
         >
           CartFlow
         </Link>
@@ -84,7 +84,7 @@ function MobileMenu({ open, onClose, triggerRef }: MobileMenuProps) {
           type="button"
           onClick={onClose}
           aria-label="Close menu"
-          className="rounded-full p-2 text-neutral-900 transition-colors hover:bg-neutral-100"
+          className="rounded-full p-2 text-gray-900 transition-colors hover:bg-gray-100"
         >
           <X className="h-5 w-5" />
         </button>
@@ -96,10 +96,10 @@ function MobileMenu({ open, onClose, triggerRef }: MobileMenuProps) {
           <Link
             to="/"
             onClick={onClose}
-            className="flex items-center justify-between border-b border-neutral-200 py-5 text-3xl font-light tracking-tight transition-opacity hover:opacity-50"
+            className="flex items-center justify-between border-b border-gray-200 py-5 text-2xl font-light tracking-tight text-gray-900 transition-colors hover:text-gray-600"
           >
             <span>Home</span>
-            <span className="text-xs text-neutral-400">01</span>
+            <span className="text-xs text-gray-400">01</span>
           </Link>
 
           {!isLoading &&
@@ -111,11 +111,11 @@ function MobileMenu({ open, onClose, triggerRef }: MobileMenuProps) {
                   key={category.id}
                   to={`/categories/${category.id}`}
                   onClick={onClose}
-                  className="flex items-center justify-between border-b border-neutral-200 py-5 text-3xl font-light tracking-tight transition-opacity hover:opacity-50"
+                  className="flex items-center justify-between border-b border-gray-200 py-5 text-2xl font-light tracking-tight text-gray-900 transition-colors hover:text-gray-600"
                 >
                   <span>{category.name}</span>
 
-                  <span className="text-xs text-neutral-400">
+                  <span className="text-xs text-gray-400">
                     {String(index + 2).padStart(2, "0")}
                   </span>
                 </Link>
@@ -123,13 +123,13 @@ function MobileMenu({ open, onClose, triggerRef }: MobileMenuProps) {
         </div>
 
         {/* Account */}
-        <div className="mt-10 border-t border-neutral-200 pt-8">
+        <div className="mt-10 border-t border-gray-200 pt-8">
           {isAuthenticated ? (
             <>
               <Link
                 to="/profile"
                 onClick={onClose}
-                className="block py-3 text-sm uppercase tracking-[0.15em]"
+                className="block py-3 text-sm uppercase tracking-[0.15em] text-gray-900 transition-colors hover:text-gray-600"
               >
                 My Profile
               </Link>
@@ -137,7 +137,7 @@ function MobileMenu({ open, onClose, triggerRef }: MobileMenuProps) {
               <button
                 type="button"
                 onClick={handleLogout}
-                className="block py-3 text-sm uppercase tracking-[0.15em] text-neutral-500"
+                className="block py-3 text-sm uppercase tracking-[0.15em] text-gray-600 transition-colors hover:text-gray-900"
               >
                 Logout
               </button>
@@ -147,7 +147,7 @@ function MobileMenu({ open, onClose, triggerRef }: MobileMenuProps) {
               <Link
                 to="/login"
                 onClick={onClose}
-                className="block py-3 text-sm uppercase tracking-[0.15em]"
+                className="block py-3 text-sm uppercase tracking-[0.15em] text-gray-900 transition-colors hover:text-gray-600"
               >
                 Login
               </Link>
@@ -155,7 +155,7 @@ function MobileMenu({ open, onClose, triggerRef }: MobileMenuProps) {
               <Link
                 to="/register"
                 onClick={onClose}
-                className="block py-3 text-sm uppercase tracking-[0.15em] text-neutral-500"
+                className="block py-3 text-sm uppercase tracking-[0.15em] text-gray-600 transition-colors hover:text-gray-900"
               >
                 Create Account
               </Link>

@@ -1,11 +1,9 @@
 import { api } from "../../../api/axios";
 
-export const getCurrentUser = async () => {
-  console.log("Calling GET /users/me");
+import type { UserProfile } from "../profile.types";
 
-  const response = await api.get("/users/me");
-
-  console.log(response.data);
+export const getCurrentUser = async (): Promise<UserProfile> => {
+  const response = await api.get<UserProfile>("/users/me");
 
   return response.data;
 };

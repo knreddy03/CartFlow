@@ -1,4 +1,4 @@
-import CategoryShowcase from "./components/CategoryShowcase";
+import CategoryShowcase from "../components/CategoryShowcase";
 
 function Home() {
   return <CategoryShowcase />;
