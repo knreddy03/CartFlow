@@ -9,8 +9,8 @@ function Logo({ transparent = false }: LogoProps) {
     <Link
       to="/"
       aria-label="CartFlow home"
-      className={`group inline-flex items-center text-xl font-semibold uppercase tracking-[0.18em] transition-opacity duration-300 hover:opacity-70 sm:text-2xl ${
-        transparent ? "text-white" : "text-neutral-950"
+      className={`group inline-flex items-center text-base font-semibold uppercase tracking-[0.25em] transition-opacity duration-300 hover:opacity-75 sm:text-base ${
+        transparent ? "text-white" : "text-gray-900"
       }`}
     >
       CartFlow

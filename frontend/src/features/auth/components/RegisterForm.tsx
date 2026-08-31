@@ -1,6 +1,9 @@
 import { useMutation } from "@tanstack/react-query";
+import { useState } from "react";
 import { useForm } from "react-hook-form";
+import { useNavigate } from "react-router-dom";
 import { zodResolver } from "@hookform/resolvers/zod";
+import axios from "axios";
 
 import Button from "../../../components/common/Button";
 import Input from "../../../components/common/Input";
@@ -11,6 +14,9 @@ import type { RegisterFormData } from "../auth.types";
 import { registerUser } from "../api/auth.api";
 
 export default function RegisterForm() {
+  const navigate = useNavigate();
+  const [apiError, setApiError] = useState("");
+
   const {
     register,
     handleSubmit,
@@ -22,16 +28,24 @@ export default function RegisterForm() {
   const mutation = useMutation({
     mutationFn: registerUser,
 
-    onSuccess(data) {
-      console.log("Registration successful", data);
+    onSuccess() {
+      navigate("/login");
     },
 
     onError(error) {
-      console.error(error);
+      if (axios.isAxiosError(error)) {
+        setApiError(
+          error.response?.data?.detail ??
+            "Registration failed. Please try again.",
+        );
+      } else {
+        setApiError("Something went wrong. Please try again.");
+      }
     },
   });
 
   const onSubmit = (data: RegisterFormData) => {
+    setApiError("");
     mutation.mutate(data);
   };
 
@@ -44,7 +58,6 @@ export default function RegisterForm() {
         error={errors.first_name?.message}
         {...register("first_name")}
       />
-
       <Input
         id="last_name"
         label="Last Name"
@@ -52,7 +65,6 @@ export default function RegisterForm() {
         error={errors.last_name?.message}
         {...register("last_name")}
       />
-
       <Input
         id="date_of_birth"
         label="Date of Birth"
@@ -60,7 +72,6 @@ export default function RegisterForm() {
         error={errors.date_of_birth?.message}
         {...register("date_of_birth")}
       />
-
       <Input
         id="mobile"
         label="Mobile"
@@ -70,7 +81,6 @@ export default function RegisterForm() {
         error={errors.mobile?.message}
         {...register("mobile")}
       />
-
       <Input
         id="email"
         label="Email"
@@ -80,7 +90,6 @@ export default function RegisterForm() {
         error={errors.email?.message}
         {...register("email")}
       />
-
       <Input
         id="password"
         label="Password"
@@ -90,10 +99,17 @@ export default function RegisterForm() {
         error={errors.password?.message}
         {...register("password")}
       />
-
       <Button type="submit" fullWidth disabled={mutation.isPending}>
         {mutation.isPending ? "Creating..." : "Create Account"}
       </Button>
+      {apiError && (
+        <p
+          role="alert"
+          className="rounded-md border border-red-200 bg-red-50 px-4 py-3 text-sm font-medium text-red-700"
+        >
+          {apiError}
+        </p>
+      )}{" "}
     </form>
   );
 }

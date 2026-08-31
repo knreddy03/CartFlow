@@ -35,7 +35,7 @@ export default function LoginForm() {
     onSuccess(data) {
       login(data.access_token, data.refresh_token, data.token_type);
 
-      navigate("/profile");
+      navigate("/");
     },
 
     onError(error) {
@@ -77,7 +77,10 @@ export default function LoginForm() {
       />
 
       {apiError && (
-        <p role="alert" className="text-center text-sm text-red-500">
+        <p
+          role="alert"
+          className="rounded-md border border-red-200 bg-red-50 px-4 py-3 text-sm font-medium text-red-700"
+        >
           {apiError}
         </p>
       )}

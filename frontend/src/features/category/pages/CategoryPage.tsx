@@ -11,9 +11,23 @@ import ProductGrid from "../../product/components/ProductGrid";
 function CategoryPage() {
   const { categoryId } = useParams<{ categoryId: string }>();
 
-  const [selectedSubCategoryId, setSelectedSubCategoryId] = useState<
-    string | null
-  >(null);
+  const [selectedSubCategoryByCategory, setSelectedSubCategoryByCategory] =
+    useState<Record<string, string | null>>({});
+
+  const selectedSubCategoryId = categoryId
+    ? (selectedSubCategoryByCategory[categoryId] ?? null)
+    : null;
+
+  const handleSelectSubCategory = (subCategoryId: string | null) => {
+    if (!categoryId) {
+      return;
+    }
+
+    setSelectedSubCategoryByCategory((previous) => ({
+      ...previous,
+      [categoryId]: subCategoryId,
+    }));
+  };
 
   const {
     data: categories = [],
@@ -49,9 +63,9 @@ function CategoryPage() {
 
   if (categoriesLoading || subCategoriesLoading || productsLoading) {
     return (
-      <main className="min-h-screen bg-[#f8f7f4] px-5 py-24 sm:px-8 lg:px-12">
+      <main className="min-h-screen bg-white px-5 py-24 sm:px-8 lg:px-12">
         <div className="mx-auto max-w-[1600px]">
-          <p className="text-sm text-neutral-500">Loading...</p>
+          <p className="text-sm text-gray-400">Loading...</p>
         </div>
       </main>
     );
@@ -59,11 +73,9 @@ function CategoryPage() {
 
   if (categoriesError || subCategoriesError || productsError) {
     return (
-      <main className="min-h-screen bg-[#f8f7f4] px-5 py-24 sm:px-8 lg:px-12">
+      <main className="min-h-screen bg-white px-5 py-24 sm:px-8 lg:px-12">
         <div className="mx-auto max-w-[1600px]">
-          <p className="text-sm text-neutral-500">
-            Unable to load this category.
-          </p>
+          <p className="text-sm text-gray-400">Unable to load this category.</p>
         </div>
       </main>
     );
@@ -73,9 +85,11 @@ function CategoryPage() {
 
   if (!category) {
     return (
-      <main className="min-h-screen bg-[#f8f7f4] px-5 py-24 sm:px-8 lg:px-12">
+      <main className="min-h-screen bg-white px-5 py-24 sm:px-8 lg:px-12">
         <div className="mx-auto max-w-[1600px]">
-          <h1 className="text-3xl font-light">Category not found.</h1>
+          <h1 className="text-3xl font-light text-gray-900">
+            Category not found.
+          </h1>
         </div>
       </main>
     );
@@ -86,43 +100,24 @@ function CategoryPage() {
   );
 
   return (
-    <main className="min-h-screen bg-[#f8f7f4]">
-      {/* Category Header */}
-      <section className="px-5 pb-10 pt-24 sm:px-8 lg:px-12 lg:pb-12 lg:pt-32">
-        <div className="mx-auto max-w-[1600px]">
-          <p className="text-xs font-medium uppercase tracking-[0.3em] text-neutral-500">
-            Collection
-          </p>
-
-          <h1 className="mt-3 text-4xl font-light tracking-tight sm:text-5xl">
-            {category.name}
-          </h1>
-
-          {category.description && (
-            <p className="mt-4 max-w-2xl text-sm leading-relaxed text-neutral-500">
-              {category.description}
-            </p>
-          )}
-        </div>
-      </section>
-
+    <main className="min-h-screen bg-white">
       {/* Product Filter Navigation */}
       <SubCategoryNav
         subCategories={activeSubCategories}
         selectedSubCategoryId={selectedSubCategoryId}
-        onSelect={setSelectedSubCategoryId}
+        onSelect={handleSelectSubCategory}
       />
 
       {/* Products */}
-      <section className="px-5 pb-24 pt-16 sm:px-8 lg:px-12 lg:pb-32">
+      <section className="px-5 pb-32 pt-20 sm:px-8 lg:px-12 lg:pb-40">
         <div className="mx-auto max-w-[1600px]">
-          <div className="mb-10 flex items-end justify-between gap-4">
-            <div>
-              <p className="text-xs font-medium uppercase tracking-[0.3em] text-neutral-500">
+          <div className="mb-16 flex items-end justify-between gap-4">
+            <div className="flex-1">
+              <p className="text-xs font-semibold uppercase tracking-[0.4em] text-gray-500">
                 {selectedSubCategoryId ? "Collection" : category.name}
               </p>
 
-              <h2 className="mt-3 text-3xl font-light tracking-tight sm:text-4xl">
+              <h2 className="mt-4 text-4xl font-light tracking-tight text-gray-900 sm:text-5xl">
                 {selectedSubCategoryId
                   ? subCategories.find(
                       (subCategory) => subCategory.id === selectedSubCategoryId,
@@ -132,9 +127,11 @@ function CategoryPage() {
             </div>
 
             {productsData && (
-              <p className="text-sm text-neutral-500">
+              <p className="whitespace-nowrap text-base font-light text-gray-600">
                 {productsData.total}{" "}
-                {productsData.total === 1 ? "product" : "products"}
+                <span className="text-gray-400">
+                  {productsData.total === 1 ? "product" : "products"}
+                </span>
               </p>
             )}
           </div>

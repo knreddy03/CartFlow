@@ -45,20 +45,20 @@ function ProfileMenu({ transparent = false }: ProfileMenuProps) {
         className={`group rounded-full p-2.5 transition-colors duration-300 ${
           transparent
             ? "text-white hover:bg-white/10"
-            : "text-neutral-800 hover:bg-neutral-100"
+            : "text-gray-700 hover:bg-gray-100"
         }`}
       >
-        <User className="h-[18px] w-[18px] transition-transform duration-300 group-hover:scale-105" />
+        <User className="h-[18px] w-[18px] transition-transform duration-300 group-hover:scale-110" />
       </button>
 
       {open && (
-        <div className="absolute right-0 top-full mt-3 w-52 border border-neutral-200 bg-white p-2 shadow-xl">
+        <div className="absolute right-0 top-full mt-3 w-52 border border-gray-200 bg-white p-2 shadow-lg">
           {!isAuthenticated ? (
             <>
               <Link
                 to="/login"
                 onClick={() => setOpen(false)}
-                className="block px-4 py-3 text-sm transition-colors hover:bg-neutral-50"
+                className="block px-4 py-3 text-sm text-gray-900 transition-colors hover:bg-gray-50"
               >
                 Login
               </Link>
@@ -66,7 +66,7 @@ function ProfileMenu({ transparent = false }: ProfileMenuProps) {
               <Link
                 to="/register"
                 onClick={() => setOpen(false)}
-                className="block px-4 py-3 text-sm transition-colors hover:bg-neutral-50"
+                className="block px-4 py-3 text-sm text-gray-900 transition-colors hover:bg-gray-50"
               >
                 Create Account
               </Link>
@@ -76,7 +76,7 @@ function ProfileMenu({ transparent = false }: ProfileMenuProps) {
               <Link
                 to="/profile"
                 onClick={() => setOpen(false)}
-                className="block px-4 py-3 text-sm transition-colors hover:bg-neutral-50"
+                className="block px-4 py-3 text-sm text-gray-900 transition-colors hover:bg-gray-50"
               >
                 My Profile
               </Link>
@@ -84,7 +84,7 @@ function ProfileMenu({ transparent = false }: ProfileMenuProps) {
               <button
                 type="button"
                 onClick={handleLogout}
-                className="w-full px-4 py-3 text-left text-sm transition-colors hover:bg-neutral-50"
+                className="w-full px-4 py-3 text-left text-sm text-gray-900 transition-colors hover:bg-gray-50"
               >
                 Logout
               </button>

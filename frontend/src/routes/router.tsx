@@ -4,7 +4,7 @@ import MainLayout from "../layouts/MainLayout";
 import HomeLayout from "../layouts/HomeLayout";
 import AuthLayout from "../layouts/AuthLayout";
 
-import Home from "../features/home/Home";
+import Home from "../features/home/pages/Home";
 
 import Login from "../features/auth/pages/Login";
 import Register from "../features/auth/pages/Register";

@@ -10,28 +10,26 @@ function NavLinks({ transparent = false }: NavLinksProps) {
   const { data: categories = [], isLoading, isError } = useCategories();
 
   const linkClass = (isActive: boolean) =>
-    `relative py-2 text-xs font-medium uppercase tracking-[0.16em] transition-colors duration-300 ${
+    `relative py-2 text-xs font-semibold uppercase tracking-[0.15em] transition-colors duration-300 ${
       transparent
-        ? "text-white/85 hover:text-white"
-        : "text-neutral-600 hover:text-neutral-950"
-    } ${isActive ? (transparent ? "text-white" : "text-neutral-950") : ""}`;
+        ? "text-white/80 hover:text-white"
+        : "text-gray-700 hover:text-gray-900"
+    } ${isActive ? (transparent ? "text-white" : "text-gray-900") : ""}`;
 
   return (
     <nav aria-label="Main navigation" className="flex items-center gap-8">
-      {/* Home */}
       <NavLink to="/" className={({ isActive }) => linkClass(isActive)}>
         {({ isActive }) => (
           <>
             <span>Home</span>
 
             {isActive && (
-              <span className="absolute -bottom-1 left-0 h-px w-full bg-current" />
+              <span className="absolute -bottom-1.5 left-0 h-1 w-full bg-gray-900" />
             )}
           </>
         )}
       </NavLink>
 
-      {/* Categories */}
       {!isLoading &&
         !isError &&
         categories
@@ -47,7 +45,7 @@ function NavLinks({ transparent = false }: NavLinksProps) {
                   <span>{category.name}</span>
 
                   {isActive && (
-                    <span className="absolute -bottom-1 left-0 h-px w-full bg-current" />
+                    <span className="absolute -bottom-1.5 left-0 h-1 w-full bg-gray-900" />
                   )}
                 </>
               )}

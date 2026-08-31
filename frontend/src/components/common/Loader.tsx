@@ -16,8 +16,8 @@ export default function Loader({ size = "md" }: LoaderProps) {
         animate-spin
         rounded-full
         border-2
-        border-neutral-200
-        border-t-neutral-900
+        border-gray-200
+        border-t-gray-900
       `}
       role="status"
       aria-label="Loading"
