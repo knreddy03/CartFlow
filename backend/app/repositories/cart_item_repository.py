@@ -10,19 +10,26 @@ class CartItemRepository:
     def get_by_id(self, cart_item_id: UUID) -> CartItem | None:
         return self.db.get(CartItem, cart_item_id)
 
-    def get_by_cart_and_product(
+    def get_by_cart_product_variant(
         self,
         cart_id: UUID,
         product_id: UUID,
+        variant_id: UUID | None
     ) -> CartItem | None:
-        return (
+        query = (
             self.db.query(CartItem)
             .filter(
                 CartItem.cart_id == cart_id,
                 CartItem.product_id == product_id,
             )
-            .first()
         )
+
+        if variant_id is None:
+            query = query.filter(CartItem.variant_id.is_(None))
+        else:
+            query = query.filter(CartItem.variant_id == variant_id)
+
+        return query.first()
 
     def get_by_cart_id(self, cart_id: UUID) -> list[CartItem]:
         return (

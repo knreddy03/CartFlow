@@ -5,6 +5,7 @@ from pydantic import BaseModel, ConfigDict, Field
 
 class CartItemCreate(BaseModel):
     product_id: UUID
+    variant_id: UUID | None = None
     quantity: int = Field(..., gt=0)
 
 
@@ -15,6 +16,7 @@ class CartItemUpdate(BaseModel):
 class CartItemResponse(BaseModel):
     id: UUID
     product_id: UUID
+    variant_id: UUID | None
     quantity: int
     created_at: datetime
     updated_at: datetime

@@ -47,7 +47,7 @@ class ProductVariantService:
 
         product_variant = ProductVariant(
             product_id=product_id,
-            sku=product_variant_data.sku,
+            sku=product_variant_data.sku.strip().upper(),
             size=product_variant_data.size,
             color=product_variant_data.color,
             material=product_variant_data.material,
@@ -124,6 +124,8 @@ class ProductVariantService:
 
         # Check SKU uniqueness if SKU is being changed.
         if "sku" in update_data:
+            update_data["sku"] = update_data["sku"].strip().upper()
+            
             existing_variant = (
                 self.product_variant_repository.get_by_sku(
                     update_data["sku"]
