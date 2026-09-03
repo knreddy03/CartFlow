@@ -6,6 +6,7 @@ from app.main import app
 from app.models.category import Category
 from app.models.product import Product
 from app.models.sub_category import SubCategory
+from app.models.product_variant import ProductVariant
 from app.models.user import User
 
 
@@ -77,6 +78,36 @@ def create_product(
     return product
 
 
+def create_variant(
+    db_session,
+    product,
+    *,
+    sku="MENS-SHIRT-RED-M",
+    size="M",
+    color="Red",
+    material="Cotton",
+    price=2499,
+    stock_quantity=10,
+    is_active=True,
+):
+    variant = ProductVariant(
+        product_id=product.id,
+        sku=sku,
+        size=size,
+        color=color,
+        material=material,
+        price=price,
+        stock_quantity=stock_quantity,
+        is_active=is_active,
+    )
+
+    db_session.add(variant)
+    db_session.commit()
+    db_session.refresh(variant)
+
+    return variant
+
+
 def test_get_cart(authenticated_client):
     response = authenticated_client.get("/cart")
 
@@ -110,6 +141,7 @@ def test_add_item_to_cart(authenticated_client, db_session):
     data = response.json()
 
     assert data["product_id"] == str(product.id)
+    assert data["variant_id"] is None
     assert data["quantity"] == 2
     assert "id" in data
     assert "created_at" in data
@@ -515,3 +547,337 @@ def test_user_cannot_delete_another_users_cart_item(
         app.dependency_overrides[get_current_user_id] = (
             lambda: authenticated_user.id
         )
+
+
+def test_add_variant_to_cart(
+    authenticated_client,
+    db_session,
+):
+    category = create_category(db_session)
+    sub_category = create_sub_category(db_session, category)
+
+    product = create_product(
+        db_session,
+        sub_category,
+    )
+
+    variant = create_variant(
+        db_session,
+        product,
+    )
+
+    response = authenticated_client.post(
+        "/cart/items",
+        json={
+            "product_id": str(product.id),
+            "variant_id": str(variant.id),
+            "quantity": 2,
+        },
+    )
+
+    assert response.status_code == 201
+
+    data = response.json()
+
+    assert data["product_id"] == str(product.id)
+    assert data["variant_id"] == str(variant.id)
+    assert data["quantity"] == 2
+    assert data["id"]
+    assert "created_at" in data
+    assert "updated_at" in data
+
+
+def test_add_same_variant_increases_quantity(
+    authenticated_client,
+    db_session,
+):
+    category = create_category(db_session)
+    sub_category = create_sub_category(db_session, category)
+
+    product = create_product(
+        db_session,
+        sub_category,
+    )
+
+    variant = create_variant(
+        db_session,
+        product,
+    )
+
+    first_response = authenticated_client.post(
+        "/cart/items",
+        json={
+            "product_id": str(product.id),
+            "variant_id": str(variant.id),
+            "quantity": 2,
+        },
+    )
+
+    assert first_response.status_code == 201
+
+    second_response = authenticated_client.post(
+        "/cart/items",
+        json={
+            "product_id": str(product.id),
+            "variant_id": str(variant.id),
+            "quantity": 3,
+        },
+    )
+
+    assert second_response.status_code == 201
+
+    data = second_response.json()
+
+    assert data["product_id"] == str(product.id)
+    assert data["variant_id"] == str(variant.id)
+    assert data["quantity"] == 5
+
+
+def test_add_different_variants_creates_separate_cart_items(
+    authenticated_client,
+    db_session,
+):
+    category = create_category(db_session)
+    sub_category = create_sub_category(db_session, category)
+
+    product = create_product(
+        db_session,
+        sub_category,
+    )
+
+    red_variant = create_variant(
+        db_session,
+        product,
+        sku="MENS-SHIRT-RED-M",
+        size="M",
+        color="Red",
+    )
+
+    blue_variant = create_variant(
+        db_session,
+        product,
+        sku="MENS-SHIRT-BLUE-M",
+        size="M",
+        color="Blue",
+    )
+
+    first_response = authenticated_client.post(
+        "/cart/items",
+        json={
+            "product_id": str(product.id),
+            "variant_id": str(red_variant.id),
+            "quantity": 2,
+        },
+    )
+
+    assert first_response.status_code == 201
+
+    second_response = authenticated_client.post(
+        "/cart/items",
+        json={
+            "product_id": str(product.id),
+            "variant_id": str(blue_variant.id),
+            "quantity": 3,
+        },
+    )
+
+    assert second_response.status_code == 201
+
+    cart_response = authenticated_client.get("/cart")
+
+    assert cart_response.status_code == 200
+
+    items = cart_response.json()["items"]
+
+    assert len(items) == 2
+
+    variants = {item["variant_id"] for item in items}
+
+    assert variants == {
+        str(red_variant.id),
+        str(blue_variant.id),
+    }
+
+
+def test_add_variant_quantity_exceeds_stock(
+    authenticated_client,
+    db_session,
+):
+    category = create_category(db_session)
+    sub_category = create_sub_category(db_session, category)
+
+    product = create_product(
+        db_session,
+        sub_category,
+        stock_quantity=100,
+    )
+
+    variant = create_variant(
+        db_session,
+        product,
+        stock_quantity=5,
+    )
+
+    response = authenticated_client.post(
+        "/cart/items",
+        json={
+            "product_id": str(product.id),
+            "variant_id": str(variant.id),
+            "quantity": 6,
+        },
+    )
+
+    assert response.status_code == 409
+    assert (
+        response.json()["detail"]
+        == "Requested quantity exceeds available stock."
+    )
+
+
+def test_add_inactive_variant(
+    authenticated_client,
+    db_session,
+):
+    category = create_category(db_session)
+    sub_category = create_sub_category(db_session, category)
+
+    product = create_product(
+        db_session,
+        sub_category,
+    )
+
+    variant = create_variant(
+        db_session,
+        product,
+        is_active=False,
+    )
+
+    response = authenticated_client.post(
+        "/cart/items",
+        json={
+            "product_id": str(product.id),
+            "variant_id": str(variant.id),
+            "quantity": 1,
+        },
+    )
+
+    assert response.status_code == 404
+
+
+def test_add_nonexistent_variant(
+    authenticated_client,
+    db_session,
+):
+    category = create_category(db_session)
+    sub_category = create_sub_category(db_session, category)
+
+    product = create_product(
+        db_session,
+        sub_category,
+    )
+
+    response = authenticated_client.post(
+        "/cart/items",
+        json={
+            "product_id": str(product.id),
+            "variant_id": str(uuid4()),
+            "quantity": 1,
+        },
+    )
+
+    assert response.status_code == 404
+
+
+def test_variant_must_belong_to_product(
+    authenticated_client,
+    db_session,
+):
+    category = create_category(db_session)
+    sub_category = create_sub_category(db_session, category)
+
+    product_a = create_product(
+        db_session,
+        sub_category,
+        name="Product A",
+        slug="product-a",
+    )
+
+    product_b = create_product(
+        db_session,
+        sub_category,
+        name="Product B",
+        slug="product-b",
+    )
+
+    variant = create_variant(
+        db_session,
+        product_b,
+        sku="PRODUCT-B-RED-M",
+    )
+
+    response = authenticated_client.post(
+        "/cart/items",
+        json={
+            "product_id": str(product_a.id),
+            "variant_id": str(variant.id),
+            "quantity": 1,
+        },
+    )
+
+    assert response.status_code == 404
+
+
+def test_product_and_variant_are_separate_cart_items(
+    authenticated_client,
+    db_session,
+):
+    category = create_category(db_session)
+    sub_category = create_sub_category(db_session, category)
+
+    product = create_product(
+        db_session,
+        sub_category,
+    )
+
+    variant = create_variant(
+        db_session,
+        product,
+        sku="MENS-SHIRT-BLUE-M",
+    )
+
+    product_response = authenticated_client.post(
+        "/cart/items",
+        json={
+            "product_id": str(product.id),
+            "quantity": 2,
+        },
+    )
+
+    assert product_response.status_code == 201
+
+    variant_response = authenticated_client.post(
+        "/cart/items",
+        json={
+            "product_id": str(product.id),
+            "variant_id": str(variant.id),
+            "quantity": 3,
+        },
+    )
+
+    assert variant_response.status_code == 201
+
+    cart_response = authenticated_client.get("/cart")
+
+    assert cart_response.status_code == 200
+
+    items = cart_response.json()["items"]
+
+    assert len(items) == 2
+
+    assert {
+        item["variant_id"]
+        for item in items
+    } == {
+        None,
+        str(variant.id),
+    }

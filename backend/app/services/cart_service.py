@@ -1,38 +1,41 @@
 from uuid import UUID
-
 from sqlalchemy.orm import Session
 
 from app.models.cart import Cart
 from app.models.cart_item import CartItem
+
 from app.repositories.cart_repository import CartRepository
 from app.repositories.cart_item_repository import CartItemRepository
 from app.repositories.product_repository import ProductRepository
-from app.schemas.cart_schema import (
-    CartItemCreate,
-    CartItemUpdate,
-)
+from app.repositories.product_variant_repository import ProductVariantRepository
+
+from app.schemas.cart_schema import CartItemCreate, CartItemUpdate
+
 from app.exceptions.cart_exceptions import (
     CartNotFoundError,
     CartItemNotFoundError,
     ProductOutOfStockError,
     InsufficientStockError,
-
 )
 from app.exceptions.product_exceptions import ProductNotFoundError
+from app.exceptions.product_variant_exceptions import ProductVariantNotFoundError
 
 
 class CartService:
+
     def __init__(
         self,
         db: Session,
         cart_repository: CartRepository,
         cart_item_repository: CartItemRepository,
         product_repository: ProductRepository,
+        product_variant_repository: ProductVariantRepository,
     ):
         self.db = db
         self.cart_repository = cart_repository
         self.cart_item_repository = cart_item_repository
         self.product_repository = product_repository
+        self.product_variant_repository = product_variant_repository
 
     def get_or_create_cart(self, user_id: UUID) -> Cart:
         cart = self.cart_repository.get_by_user_id(user_id)
@@ -55,53 +58,63 @@ class CartService:
         user_id: UUID,
         item_data: CartItemCreate,
     ) -> CartItem:
-        product = self.product_repository.get_by_id(
-            item_data.product_id
-        )
+        product = self.product_repository.get_by_id(item_data.product_id)
 
         if product is None or not product.is_active:
-            raise ProductNotFoundError("Product not found.")
+                raise ProductNotFoundError("Product not found.")
 
-        if product.stock_quantity <= 0:
+        variant = None
+
+        if item_data.variant_id is not None:
+            variant = self.product_variant_repository.get_by_id(item_data.variant_id)
+
+            if variant is None or variant.product_id != product.id:
+                raise ProductVariantNotFoundError("Product variant not found.")
+
+            if not variant.is_active:
+                raise ProductVariantNotFoundError("Product variant not found.")
+
+            available_stock = variant.stock_quantity
+        else:
+            available_stock = product.stock_quantity
+
+        if available_stock <= 0:
             raise ProductOutOfStockError("Product is out of stock.")
 
         cart = self.get_or_create_cart(user_id)
 
         existing_item = (
-            self.cart_item_repository.get_by_cart_and_product(
+            self.cart_item_repository.get_by_cart_product_variant(
                 cart.id,
                 item_data.product_id,
+                item_data.variant_id,
             )
         )
 
-        current_quantity = (
-            existing_item.quantity
-            if existing_item
-            else 0
-        )
-
+        current_quantity = existing_item.quantity if existing_item else 0
         requested_quantity = current_quantity + item_data.quantity
 
-        if requested_quantity > product.stock_quantity:
+        if requested_quantity > available_stock:
             raise InsufficientStockError(
                 "Requested quantity exceeds available stock."
             )
-    
+
         if existing_item:
             existing_item.quantity = requested_quantity
 
             try:
-                self.db.commit()
-                self.db.refresh(existing_item)
+                    self.db.commit()
+                    self.db.refresh(existing_item)
             except Exception:
-                self.db.rollback()
-                raise
+                    self.db.rollback()
+                    raise
 
             return existing_item
 
         cart_item = CartItem(
             cart_id=cart.id,
             product_id=item_data.product_id,
+            variant_id=item_data.variant_id,
             quantity=item_data.quantity,
         )
 
@@ -127,9 +140,7 @@ class CartService:
         if cart is None:
             raise CartNotFoundError("Cart not found.")
 
-        cart_item = self.cart_item_repository.get_by_id(
-            cart_item_id
-        )
+        cart_item = self.cart_item_repository.get_by_id(cart_item_id)
 
         if cart_item is None or cart_item.cart_id != cart.id:
             raise CartItemNotFoundError("Cart item not found.")
@@ -139,10 +150,23 @@ class CartService:
         if product is None or not product.is_active:
             raise ProductNotFoundError("Product not found.")
 
-        if product.stock_quantity <= 0:
+        if cart_item.variant_id is not None:
+            variant = self.product_variant_repository.get_by_id(cart_item.variant_id)
+
+            if variant is None or variant.product_id != product.id:
+                raise ProductVariantNotFoundError("Product variant not found.")
+
+            if not variant.is_active:
+                raise ProductVariantNotFoundError("Product variant not found.")
+
+            available_stock = variant.stock_quantity
+        else:
+            available_stock = product.stock_quantity
+
+        if available_stock <= 0:
             raise ProductOutOfStockError("Product is out of stock.")
 
-        if item_data.quantity > product.stock_quantity:
+        if item_data.quantity > available_stock:
             raise InsufficientStockError("Requested quantity exceeds available stock.")
         
         cart_item.quantity = item_data.quantity
@@ -166,9 +190,7 @@ class CartService:
         if cart is None:
             raise CartNotFoundError("Cart not found.")
 
-        cart_item = self.cart_item_repository.get_by_id(
-            cart_item_id
-        )
+        cart_item = self.cart_item_repository.get_by_id(cart_item_id)
 
         if cart_item is None or cart_item.cart_id != cart.id:
             raise CartItemNotFoundError("Cart item not found.")

@@ -14,6 +14,7 @@ from app.services.cart_service import CartService
 from app.services.sub_category_service import SubCategoryService
 
 from app.repositories.product_repository import ProductRepository
+from app.repositories.product_variant_repository import ProductVariantRepository
 from app.repositories.cart_repository import CartRepository
 from app.repositories.cart_item_repository import CartItemRepository
 
@@ -71,6 +72,7 @@ def get_cart_service(
         cart_repository=CartRepository(db),
         cart_item_repository=CartItemRepository(db),
         product_repository=ProductRepository(db),
+        product_variant_repository=ProductVariantRepository(db),
         )
 
 

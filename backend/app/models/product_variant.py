@@ -31,3 +31,4 @@ class ProductVariant(BaseModel):
     is_active: Mapped[bool] = mapped_column(Boolean, default=True, nullable=False,)
 
     product = relationship("Product", back_populates="variants",)
+    cart_items = relationship("CartItem", back_populates="variant",)
