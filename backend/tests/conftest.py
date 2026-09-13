@@ -153,8 +153,11 @@ def clean_database():
                 TRUNCATE TABLE
                     email_verification_tokens,
                     refresh_tokens,
+                    orders,
+                    order_items,
                     carts,
                     cart_items,
+                    product_variants,
                     products,
                     sub_categories,
                     categories,
@@ -173,8 +176,11 @@ def clean_database():
                 TRUNCATE TABLE
                     email_verification_tokens,
                     refresh_tokens,
+                    orders,
+                    order_items,
                     carts,
                     cart_items,
+                    product_variants,
                     products,
                     sub_categories,
                     categories,

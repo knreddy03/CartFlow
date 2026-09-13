@@ -1,4 +1,9 @@
 
+
+class CartEmptyError(Exception):
+    pass
+
+
 class CartNotFoundError(Exception):
     pass
 

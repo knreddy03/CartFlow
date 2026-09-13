@@ -15,6 +15,8 @@ from app.models.product import Product
 from app.models.product_variant import ProductVariant
 from app.models.cart import Cart
 from app.models.cart_item import CartItem
+from app.models.order import Order, OrderStatus
+from app.models.order_item import OrderItem
 from app.core.config import settings
 
 # this is the Alembic Config object, which provides

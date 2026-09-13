@@ -8,6 +8,7 @@ from app.api.v1.sub_category import router as sub_category_router
 from app.api.v1.product import router as product_router
 from app.api.v1.product_variant import router as product_variant_router
 from app.api.v1.cart import router as cart_router
+from app.api.v1.order import router as order_router
 
 from app.core.exception_handlers import (
     user_already_exists_handler,
@@ -22,10 +23,13 @@ from app.core.exception_handlers import (
     min_price_greater_than_max_price_handler,
     product_variant_not_found_handler,
     product_variant_already_exists_handler,
+    cart_empty_handler,
     cart_not_found_handler,
     cart_item_not_found_handler,
     product_out_of_stock_handler,
     insufficient_stock_handler,
+    order_not_found_handler,
+    invalid_order_status_transition_handler,
 )
 
 from app.exceptions.user_exceptions import (
@@ -56,10 +60,16 @@ from app.exceptions.product_variant_exceptions import (
 )
 
 from app.exceptions.cart_exceptions import (
+    CartEmptyError,
     CartNotFoundError,
     CartItemNotFoundError,
     ProductOutOfStockError,
     InsufficientStockError,
+)
+
+from app.exceptions.order_exceptions import (
+    OrderNotFoundError,
+    InvalidOrderStatusTransitionError,
 )
 
 
@@ -140,6 +150,11 @@ app.add_exception_handler(
 )
 
 app.add_exception_handler(
+    CartEmptyError,
+    cart_empty_handler,
+)
+
+app.add_exception_handler(
     CartNotFoundError,
     cart_not_found_handler,
 )
@@ -159,6 +174,16 @@ app.add_exception_handler(
     insufficient_stock_handler,
 )
 
+app.add_exception_handler(
+    OrderNotFoundError,
+    order_not_found_handler,
+)
+
+app.add_exception_handler(
+    InvalidOrderStatusTransitionError,
+    invalid_order_status_transition_handler,
+)
+
 
 app.include_router(auth_router)
 app.include_router(user_router)
@@ -167,6 +192,7 @@ app.include_router(sub_category_router)
 app.include_router(product_router)
 app.include_router(product_variant_router)
 app.include_router(cart_router)
+app.include_router(order_router)
 
 
 @app.get("/")

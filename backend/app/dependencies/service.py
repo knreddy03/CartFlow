@@ -12,11 +12,14 @@ from app.services.product_service import ProductService
 from app.services.product_variant_service import ProductVariantService
 from app.services.cart_service import CartService
 from app.services.sub_category_service import SubCategoryService
+from app.services.order_service import OrderService
 
 from app.repositories.product_repository import ProductRepository
 from app.repositories.product_variant_repository import ProductVariantRepository
 from app.repositories.cart_repository import CartRepository
 from app.repositories.cart_item_repository import CartItemRepository
+from app.repositories.order_repository import OrderRepository
+from app.repositories.order_item_repository import OrderItemRepository
 
 
 def get_user_service(
@@ -80,3 +83,17 @@ def get_sub_category_service(
     db: Session = Depends(get_db),
 ) -> SubCategoryService:
     return SubCategoryService(db)
+
+
+def get_order_service(
+    db: Session = Depends(get_db),
+) -> OrderService:
+    return OrderService(
+        db=db,
+        order_repository=OrderRepository(db),
+        order_item_repository=OrderItemRepository(db),
+        cart_repository=CartRepository(db),
+        cart_item_repository=CartItemRepository(db),
+        product_repository=ProductRepository(db),
+        product_variant_repository=ProductVariantRepository(db),
+        )

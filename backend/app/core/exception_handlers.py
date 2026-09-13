@@ -29,10 +29,16 @@ from app.exceptions.product_variant_exceptions import (
 )
 
 from app.exceptions.cart_exceptions import (
+    CartEmptyError,
     CartNotFoundError,
     CartItemNotFoundError,
     ProductOutOfStockError,
     InsufficientStockError,
+)
+
+from app.exceptions.order_exceptions import (
+    OrderNotFoundError,
+    InvalidOrderStatusTransitionError,
 )
 
 
@@ -180,6 +186,18 @@ def min_price_greater_than_max_price_handler(
     )
 
 
+def cart_empty_handler(
+    request: Request,
+    exc: CartEmptyError,
+):
+    return JSONResponse(
+        status_code=400,
+        content={
+            "detail": str(exc)
+        },
+    )
+
+
 def cart_not_found_handler(
     request: Request,
     exc: CartNotFoundError,
@@ -222,6 +240,30 @@ def insufficient_stock_handler(
 ):
     return JSONResponse(
         status_code=409,
+        content={
+            "detail": str(exc)
+        },
+    )
+
+
+def order_not_found_handler(
+    request: Request,
+    exc: OrderNotFoundError,
+):
+    return JSONResponse(
+        status_code=404,
+        content={
+            "detail": str(exc)
+        },
+    )
+
+
+def invalid_order_status_transition_handler(
+    request: Request,
+    exc: InvalidOrderStatusTransitionError,
+):
+    return JSONResponse(
+        status_code=400,
         content={
             "detail": str(exc)
         },
